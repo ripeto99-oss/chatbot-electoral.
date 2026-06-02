@@ -1,0 +1,2846 @@
+<!-- 
+  VOTO INFORMADO 2.0 — Colombia 2026
+  Para activar el Copiloto IA: reemplaza 'TU_API_KEY_AQUI' en la línea ~1264
+  Versión: 2.0.0 | Construido con Claude
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voto Informado 2.0 — Elecciones Colombia 2026</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-surface: rgba(17, 24, 39, 0.8);
+            --bg-card: #0b0f19;
+            --bg-inner: rgba(31, 41, 55, 0.6);
+            --border: rgba(255, 255, 255, 0.07);
+            --border-glow: rgba(99, 102, 241, 0.2);
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .light {
+            --bg-base: #f1f5f9;
+            --bg-surface: rgba(255, 255, 255, 0.9);
+            --bg-card: #ffffff;
+            --bg-inner: #f8fafc;
+            --border: rgba(0, 0, 0, 0.09);
+            --border-glow: rgba(99, 102, 241, 0.1);
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.15);
+            --text: #0f172a;
+            --muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s var(--ease), border-color 0.3s var(--ease);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        code, kbd, .monospace {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Focus styles */
+        *:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 4px;
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        
+        /* Layout Structure */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #003893, #fcd116, #ce1126);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Standard Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+            text-decoration: none;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-inner);
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: rgba(244, 63, 94, 0.1);
+            border-color: rgba(244, 63, 94, 0.2);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-inner);
+        }
+
+        /* PANTALLA 0: Landing */
+        .landing-hero {
+            text-align: center;
+            max-width: 800px;
+            margin: 4rem auto;
+        }
+
+        .landing-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--text), var(--muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .landing-subtitle {
+            font-size: 1.25rem;
+            color: var(--muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .landing-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .candidates-preview {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .candidates-preview h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .avatar-row {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .candidate-avatar-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: var(--bg-inner);
+            border: 3px solid var(--cand-color, var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .avatar-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .session-banner {
+            background: var(--primary-glow);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* PANTALLA 1: Quiz Framework */
+        .quiz-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        .quiz-sidebar {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--muted);
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-inner);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-glow);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.15);
+            flex-shrink: 0;
+        }
+
+        .nav-item.answered .nav-status {
+            background-color: var(--success);
+        }
+
+        .nav-item.skipped .nav-status {
+            background-color: var(--accent);
+        }
+
+        .quiz-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .progress-header {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-bar-container {
+            flex-grow: 1;
+            margin: 0 2rem;
+            height: 6px;
+            background-color: var(--bg-inner);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.4s var(--ease);
+        }
+
+        .question-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .dimension-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge-economia { background-color: rgba(99, 102, 241, 0.15); color: #818cf8; }
+        .badge-social { background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .badge-seguridad { background-color: rgba(244, 63, 94, 0.15); color: #fb7185; }
+        .badge-futuro { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        .question-text {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .glossary-box {
+            background-color: var(--bg-inner);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            overflow: hidden;
+        }
+
+        .glossary-trigger {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 0.85rem;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .glossary-content {
+            padding: 0 1.25rem 1.25rem 1.25rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+            border-top: 1px solid transparent;
+        }
+
+        .glossary-box.open .glossary-content {
+            border-top-color: var(--border);
+        }
+
+        .weight-selector-zone {
+            margin-bottom: 2.5rem;
+        }
+
+        .weight-label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .weight-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .weight-btn {
+            background-color: var(--bg-inner);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            color: var(--muted);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .weight-btn:hover {
+            border-color: var(--primary);
+            color: var(--text);
+        }
+
+        .weight-btn.active {
+            background-color: var(--primary-glow);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .vote-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-vote {
+            padding: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-radius: var(--radius-lg);
+            border: 2px solid transparent;
+        }
+
+        .btn-vote-no {
+            background-color: rgba(244, 63, 94, 0.06);
+            border-color: rgba(244, 63, 94, 0.2);
+            color: var(--danger);
+        }
+
+        .btn-vote-no:hover, .btn-vote-no.active {
+            background-color: var(--danger);
+            color: white;
+            box-shadow: 0 8px 24px rgba(244, 63, 94, 0.3);
+        }
+
+        .btn-vote-si {
+            background-color: rgba(16, 185, 129, 0.06);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .btn-vote-si:hover, .btn-vote-si.active {
+            background-color: var(--success);
+            color: white;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+        }
+
+        .quiz-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
+        .keyboard-shortcuts {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .key-cap {
+            background: var(--bg-inner);
+            border: 1px solid var(--border);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 700;
+            box-shadow: 0 2px 0 var(--border);
+        }
+
+        /* PANTALLA 2: Revisión Pre-Resultados */
+        .review-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .review-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .review-table th, .review-table td {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .review-table th {
+            background-color: var(--bg-inner);
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .review-row:last-child td {
+            border-bottom: none;
+        }
+
+        .alert-banner {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--accent);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* PANTALLA 3: Dashboard de Resultados */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        /* 3A. Hero */
+        .result-hero {
+            background: radial-gradient(circle at top right, var(--primary-glow), transparent), var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--cand-glow, var(--primary-glow)) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .result-hero-left {
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-affinity-score {
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: -3px;
+            line-height: 1;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-candidate-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 0.75rem;
+        }
+
+        .ideology-badge {
+            display: inline-block;
+            background-color: var(--bg-inner);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .result-hero-right {
+            position: relative;
+            z-index: 1;
+        }
+
+        .big-avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 6px solid var(--cand-color, var(--primary));
+            background-color: var(--bg-inner);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 800;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        /* 3B & 3C Container Matrix */
+        .viz-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .viz-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+        }
+
+        .viz-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .radar-container {
+            height: 340px;
+            position: relative;
+        }
+
+        /* Heatmap Styles */
+        .heatmap-matrix {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .heatmap-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .heatmap-label {
+            width: 110px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            gap: 4px;
+            flex-grow: 1;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 3px;
+            background-color: #374151;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .heatmap-cell.match {
+            background-color: var(--success);
+        }
+
+        .heatmap-cell.mismatch {
+            background-color: var(--border);
+        }
+
+        /* Simple CSS tooltips for heatmaps */
+        .heatmap-cell::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            background-color: #0f172a;
+            color: #fff;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.15s var(--ease);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .heatmap-cell:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .heatmap-legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+            justify-content: flex-end;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        /* 3D. Ranking */
+        .ranking-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ranking-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 2rem;
+        }
+
+        .ranking-main-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .ranking-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-grow: 1;
+        }
+
+        .ranking-rank {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--muted);
+            width: 24px;
+        }
+
+        .ranking-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--cand-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .ranking-details {
+            flex-grow: 1;
+        }
+
+        .ranking-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .ranking-party {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .ranking-progress-zone {
+            width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ranking-bar-bg {
+            height: 8px;
+            background-color: var(--bg-inner);
+            border-radius: 4px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .ranking-bar-fill {
+            height: 100%;
+            background-color: var(--cand-color);
+            border-radius: 4px;
+            width: 0%;
+        }
+
+        .ranking-score {
+            font-size: 1.25rem;
+            font-weight: 700;
+            width: 60px;
+            text-align: right;
+        }
+
+        .ranking-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Sub-scores panel inside ranking or expandable */
+        .ranking-expanded-panel {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .sub-score-box {
+            background-color: var(--bg-inner);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .sub-score-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .sub-score-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* 3E. Dimension Analysis */
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .dimension-analysis-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .dim-card-top {
+            margin-bottom: 1rem;
+        }
+
+        .dim-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .dim-card-diagnostic {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        /* 3F. Copiloto IA (Perplexity Style) */
+        .ai-copilot-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+        }
+
+        .ai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ai-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .ai-sparkle {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .ai-chat-history {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            background-color: var(--bg-inner);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .chat-msg.user {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-msg.assistant {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .prompt-pills-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .prompt-pill {
+            background-color: var(--bg-inner);
+            border: 1px solid var(--border);
+            padding: 0.45rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .prompt-pill:hover {
+            border-color: var(--primary);
+            color: var(--text);
+            background-color: var(--primary-glow);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            background-color: var(--bg-inner);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        /* 3G. Historial de Intentos */
+        .history-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        .history-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .history-date {
+            color: var(--muted);
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-top-cand {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        /* 3H. Final Actions Group */
+        .final-actions-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border);
+            padding-top: 2.5rem;
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(3, 7, 18, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-window {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 850px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        /* F1: Comparison View styles */
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comp-table th, .comp-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .comp-table th {
+            background-color: var(--bg-inner);
+            font-weight: 700;
+        }
+
+        .comp-diff-row {
+            background-color: rgba(245, 158, 11, 0.03);
+        }
+
+        .badge-pos {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .badge-pos-si { background-color: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge-pos-no { background-color: rgba(244, 63, 94, 0.15); color: var(--danger); }
+
+        /* F2: Scatter plot style container */
+        .scatter-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .scatter-plot-box {
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 1;
+            border: 2px solid var(--border);
+            position: relative;
+            background-color: var(--bg-inner);
+            border-radius: var(--radius-md);
+        }
+
+        .scatter-axis-x {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .scatter-axis-y {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 100%;
+            height: 1px;
+            width: 1px;
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .scatter-label {
+            position: absolute;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .scatter-label.top { top: 6px; left: 50%; transform: translateX(-50%); }
+        .scatter-label.bottom { bottom: 6px; left: 50%; transform: translateX(-50%); }
+        .scatter-label.left { left: 6px; top: 50%; transform: translateY(-50%); }
+        .scatter-label.right { right: 6px; top: 50%; transform: translateY(-50%); }
+
+        .scatter-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transform: translate(-50%, 50%);
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        .scatter-dot.user-dot {
+            width: 16px;
+            height: 16px;
+            background-color: #fff;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(99,102,241,0); }
+            100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        }
+
+        /* F3: Explore view cards */
+        .explore-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .explore-cand-card {
+            background-color: var(--bg-inner);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+
+        /* Print formatting utility target */
+        #printable-dashboard-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .quiz-layout { grid-template-columns: 1fr; }
+            .quiz-sidebar { display: none; }
+            .viz-row { grid-template-columns: 1fr; }
+            .dimensions-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .landing-title { font-size: 2.5rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .result-hero { flex-direction: column; text-align: center; padding: 2rem; }
+            .result-hero-left { order: 2; }
+            .result-hero-right { order: 1; }
+            .ranking-main-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .ranking-progress-zone { width: 100%; }
+            .dimensions-grid { grid-template-columns: 1fr; }
+            .history-grid { grid-template-columns: repeat(2, 1fr); }
+            .final-actions-row { flex-direction: column; }
+            .explore-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .landing-title { font-size: 2rem; }
+            .vote-actions { grid-template-columns: 1fr; gap: 0.75rem; }
+            .weight-buttons { grid-template-columns: 1fr; gap: 0.5rem; }
+            .question-card { padding: 1.5rem; }
+            .heatmap-grid { grid-template-columns: repeat(12, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- GLOBAL APP HEADER -->
+        <header>
+            <div class="brand-container">
+                <div class="brand-logo">V</div>
+                <div>
+                    <h1 class="brand-title">Voto Informado 2.0</h1>
+                    <p style="font-size: 0.75rem; color: var(--muted); font-weight: 600;">Colombia Presidencial 2026</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle-btn" aria-label="Cambiar tema visual" onclick="toggleTheme()">☀️</button>
+            </div>
+        </header>
+
+        <!-- APP CONTENT ROOT SYSTEM -->
+        <main id="app-viewport">
+            <!-- Dynamic components inject here -->
+        </main>
+    </div>
+
+    <!-- MODAL ARCHITECTURE LAYER -->
+    <div id="modal-container" class="modal-overlay hidden">
+        <!-- Dynamic modal structures inject here -->
+    </div>
+
+    <!-- MAIN SYSTEM ENGINE SCRIPT -->
+    <script>
+        // STATIC APP TRUTH DATA - CORE DATA LAYER
+        const BRAND_DIMENSIONS = {
+            1: { id: 'economia', name: 'Economía' },
+            2: { id: 'social', name: 'Social' },
+            3: { id: 'seguridad', name: 'Seguridad' },
+            4: { id: 'futuro', name: 'Futuro' }
+        };
+
+        const CANDIDATES = {
+            cepeda: {
+                id: 'cepeda',
+                name: 'Iván Cepeda',
+                party: 'Pacto Histórico',
+                color: '#6366f1',
+                avatarText: 'IC',
+                ideology: 'Izquierda Estructural',
+                x_axis: -0.75,
+                y_axis: 0.7,
+                answers: {
+                    1: 1, 2: 0, 3: 0, 4: 1, 5: 0, 6: 0, // Eco
+                    7: 1, 8: 1, 9: 1, 10: 1, 11: 1, 12: 1, // Soc
+                    13: 1, 14: 0, 15: 0, 16: 0, 17: 1, 18: 0, // Seg
+                    19: 1, 20: 0, 21: 1, 22: 1, 23: 1, 24: 0 // Fut
+                },
+                timeline: 'Senador de larga trayectoria. Co-arquitecto de los procesos de paz de la última década en Colombia.'
+            },
+            espriella: {
+                id: 'espriella',
+                name: 'Abelardo de la Espriella',
+                party: 'Defensores de la Patria',
+                color: '#ef4444',
+                avatarText: 'AE',
+                ideology: 'Derecha Soberanista / Conservadora',
+                x_axis: 0.85,
+                y_axis: -0.8,
+                answers: {
+                    1: 0, 2: 1, 3: 1, 4: 0, 5: 1, 6: 1, // Eco
+                    7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, // Soc
+                    13: 0, 14: 1, 15: 1, 16: 1, 17: 0, 18: 1, // Seg
+                    19: 0, 20: 1, 21: 0, 22: 0, 23: 0, 24: 1 // Fut
+                },
+                timeline: 'Abogado penalista de alto perfil público. Promotor de una agenda punitiva integral y de libre mercado absoluto.'
+            },
+            valencia: {
+                id: 'valencia',
+                name: 'Paloma Valencia',
+                party: 'Centro Democrático',
+                color: '#3b82f6',
+                avatarText: 'PV',
+                ideology: 'Derecha Institucional Pro-Mercado',
+                x_axis: 0.6,
+                y_axis: -0.4,
+                // Differentiated answers profile supporting professional alignment metrics for Centro Democrático
+                answers: {
+                    1: 0, 2: 1, 3: 1, 4: 0, 5: 1, 6: 1, // Eco
+                    7: 0, 8: 0, 9: 1, 10: 0, 11: 1, 12: 0, // Soc (Soporta educación mixta y algunos marcos de equidad institucional de género)
+                    13: 0, 14: 1, 15: 1, 16: 1, 17: 0, 18: 0, // Seg (Rechaza porte libre indiscriminado de armas, apoya regulación estricta del Estado)
+                    19: 0, 20: 1, 21: 0, 22: 0, 23: 0, 24: 0 // Fut (Rechaza reducción drástica unilateral del legislativo)
+                },
+                timeline: 'Senadora de la república. Representante histórica de las tesis de la seguridad democrática con agenda de tecnificación productiva.'
+            },
+            fajardo: {
+                id: 'fajardo',
+                name: 'Sergio Fajardo',
+                party: 'Dignidad y Compromiso',
+                color: '#f59e0b',
+                avatarText: 'SF',
+                ideology: 'Centro / Socialdemocracia Pragmática',
+                x_axis: -0.1,
+                y_axis: 0.3,
+                answers: {
+                    1: 0, 2: 0, 3: 1, 4: 0, 5: 0, 6: 1, // Eco
+                    7: 1, 8: 1, 9: 1, 10: 1, 11: 1, 12: 0, // Soc
+                    13: 1, 14: 0, 15: 0, 16: 0, 17: 1, 18: 0, // Seg
+                    19: 1, 20: 0, 21: 0, 22: 1, 23: 1, 24: 0 // Fut
+                },
+                timeline: 'Exgobernador y exalcalde. Académico matemático enfocado en la educación pública como motor de transformación social.'
+            }
+        };
+
+        const BANK_QUESTIONS = [
+            // ECONOMIA (1-6)
+            { id: 1, dimension: 1, topic: 'Tributaria', text: '¿Se debe tramitar una reforma tributaria enfocada en aumentar impuestos directos a los patrimonios más altos?', glossary: 'Impuesto Directo: Tributo que grava directamente la riqueza o los ingresos de una persona jurídica o natural, en lugar de gravar el consumo.' },
+            { id: 2, dimension: 1, topic: 'Fracking', text: '¿Debe permitirse la exploración y explotación de hidrocarburos mediante fracturamiento hidráulico (Fracking) en el país?', glossary: 'Fracking: Técnica de extracción de gas y petróleo que consiste en inyectar agua a alta presión en el subsuelo para fracturar la roca.' },
+            { id: 3, dimension: 1, topic: 'Tarifas', text: '¿Debería el gobierno nacional intervenir directamente los marcos de tarifas de los servicios públicos domiciliarios?', glossary: 'Intervención de Tarifas: Control directo del Estado sobre los precios de venta al público de luz, agua o gas, omitiendo la libre flotación de tarifas del mercado.' },
+            { id: 4, dimension: 1, topic: 'Aranceles', text: '¿Es viable aumentar sustancialmente los aranceles a las importaciones de bienes agrícolas manufacturados?', glossary: 'Aranceles: Impuestos que se aplican a los bienes que son importados desde el extranjero para proteger la producción nacional.' },
+            { id: 5, dimension: 1, topic: 'Regla Fiscal', text: '¿Se debe flexibilizar temporalmente el cumplimiento estricto de la Regla Fiscal para apalancar inversión en infraestructura?', glossary: 'Regla Fiscal: Norma que obliga al Estado a limitar el gasto público para garantizar que la deuda nacional sea sostenible en el tiempo.' },
+            { id: 6, dimension: 1, topic: 'TLCs', text: '¿Es imperativo renegociar de forma unilateral los Tratados de Libre Comercio (TLC) vigentes, como el de EE.UU.?', glossary: 'Tratado de Libre Comercio: Acuerdo comercial regional o bilateral para ampliar el mercado de bienes y servicios entre los países participantes.' },
+            
+            // SOCIAL (7-12)
+            { id: 7, dimension: 2, topic: 'Salud', text: '¿Debe centralizarse la administración de los fondos de salud pública enteramente en una entidad estatal, eliminando la intermediación privada?', glossary: 'Intermediación en Salud: Modelo donde entidades particulares administran los recursos del Estado para coordinar la red médica de atención.' },
+            { id: 8, dimension: 2, topic: 'Pensiones', text: '¿Se debe establecer un sistema de pilares donde la gran mayoría de cotizaciones vayan obligatoriamente al fondo público Colpensiones?', glossary: 'Sistema de Pilares: Modelo pensional que divide las cotizaciones según niveles de ingresos, destinando un tramo fijo al fondo público.' },
+            { id: 9, dimension: 2, topic: 'Educación', text: '¿Debe priorizarse el presupuesto público de educación superior únicamente a las universidades estatales en vez de programas de subsidios a universidades privadas?', glossary: 'Subsidio a la Demanda: Transferencia de recursos del Estado directamente al estudiante para que elija su institución, en vez de financiar la planta física estatal.' },
+            { id: 10, dimension: 2, topic: 'Subsidios', text: '¿Es partidario de transicionar los subsidios condicionados hacia un modelo unificado de Renta Básica Universal sin condiciones para población vulnerable?', glossary: 'Renta Básica: Transferencia monetaria directa, periódica e incondicional efectuada por el Estado a los ciudadanos para garantizar un mínimo vital.' },
+            { id: 11, dimension: 2, topic: 'Género', text: '¿Es adecuado crear un marco institucional con presupuesto autónomo dedicado con exclusividad a políticas de enfoque de género y diversidades?', glossary: 'Enfoque de Género: Metodología analítica y política que identifica y corrige las desigualdades estructurales de oportunidades entre hombres, mujeres y diversidades.' },
+            { id: 12, dimension: 2, topic: 'Laboral', text: '¿Debe priorizarse el encarecimiento por ley de la jornada nocturna y de dominicales para favorecer la remuneración del trabajador sobre la flexibilización empresarial?', glossary: 'Recargos Laborales: Pagos adicionales obligatorios al sueldo base que recibe el trabajador por operar en horarios complejos o días de descanso.' },
+
+            // SEGURIDAD (13-18)
+            { id: 13, dimension: 3, topic: 'Paz', text: '¿Apoya la continuidad de los procesos de negociación política activa con grupos armados bajo la estrategia de Paz Total?', glossary: 'Procesos Políticos de Paz: Negociaciones bilaterales entre el Estado y actores armados ilegales orientadas a su desmovilización a cambio de condiciones legales pactadas.' },
+            { id: 14, dimension: 3, topic: 'Cárceles', text: '¿Debe el país construir mega-cárceles de máxima seguridad bajo modelos de aislamiento estricto para mitigar la delincuencia urbana?', glossary: 'Modelos de Aislamiento Estricto: Infraestructura carcelaria diseñada para restringir al máximo las comunicaciones del recluso y el contacto externo.' },
+            { id: 15, dimension: 3, topic: 'Glifosato', text: '¿Se debe reactivar la aspersión aérea forzosa de cultivos de uso ilícito mediante el uso de glifosato?', glossary: 'Glifosato: Herbicida químico utilizado por vía aérea para destruir de forma masiva cultivos ilegales de hoja de coca.' },
+            { id: 16, dimension: 3, topic: 'Policía', text: '¿Debería trasladarse la Policía Nacional desde el Ministerio de Defensa hacia un nuevo Ministerio de la Igualdad o de la Justicia?', glossary: 'Desmilitarización Policial: Proceso de separar la doctrina e institucionalidad de la fuerza policial del mando militar operativo de defensa exterior.' },
+            { id: 17, dimension: 3, topic: 'JEP', text: '¿Debe preservarse la Jurisdicción Especial para la Paz (JEP) tal cual fue concebida en el acuerdo de paz de 2016 sin modificaciones estructurales?', glossary: 'JEP: Tribunal de justicia transicional creado para juzgar los delitos cometidos durante el conflicto armado interno en Colombia.' },
+            { id: 18, dimension: 3, topic: 'Armas', text: '¿Es conveniente flexibilizar los permisos estatales para el porte y tenencia legítima de armas de fuego para defensa personal de ciudadanos?', glossary: 'Porte de Armas: Autorización legal que otorga el Estado para transitar en el espacio público portando un arma de fuego cargada.' },
+
+            // FUTURO (19-24)
+            { id: 19, dimension: 4, topic: 'Autos', text: '¿Se debe fijar una fecha límite por ley (antes de 2035) para prohibir la venta de vehículos de combustión fósil nuevos en Colombia?', glossary: 'Vehículos de Combustión Fósil: Automotores convencionales impulsados por motores que queman gasolina o diésel polucionando el aire.' },
+            { id: 20, dimension: 4, topic: 'Minería', text: '¿Debe Colombia suspender la concesión de nuevos contratos de exploración minera a gran escala para proteger las reservas de agua dulce?', glossary: 'Minería a Gran Escala: Operaciones industriales extractivas de minerales que mueven grandes volúmenes de tierra e involucran alta infraestructura.' },
+            { id: 21, dimension: 4, topic: 'Voto obligatorio', text: '¿Debería instaurarse el voto obligatorio en el territorio nacional como mecanismo institucional para contrarrestar la abstención electoral?', glossary: 'Voto Obligatorio: Norma constitucional que sanciona administrativamente al ciudadano habilitado que decide no ejercer el derecho al sufragio.' },
+            { id: 22, dimension: 4, topic: 'Cannabis', text: '¿Es viable y positivo legalizar integralmente el uso recreativo y la comercialización del cannabis de uso adulto en el país?', glossary: 'Uso Adulto del Cannabis: Desregulación jurídica de la marihuana recreativa para permitir su cultivo, venta y consumo controlado en mayores de edad.' },
+            { id: 23, dimension: 4, topic: 'Eutanasia', text: '¿Debe el congreso regular legalmente el acceso al derecho a la muerte digna asistida mediante una ley estatutaria robusta?', glossary: 'Eutanasia Asistida: Procedimiento médico deliberado que pone fin a la vida de un paciente con enfermedad terminal irreversible a solicitud expresa del mismo.' },
+            { id: 24, dimension: 4, topic: 'Congreso', text: '¿Se debe reformar la constitución para reducir a la mitad el número total de congresistas en el Senado y la Cámara?', glossary: 'Reducción del Legislativo: Disminución de escaños en el parlamento con el objetivo declarado de reducir el gasto público burocrático del Estado.' }
+        ];
+
+        // ENGINE APPLICATION STATE MANAGEMENT
+        let appState = {
+            currentScreen: 0, // 0: Landing, 1: Quiz, 2: Review, 3: Dashboard
+            currentQuestionIdx: 0,
+            userAnswers: {}, // Format: { questionId: 1 | 0 }
+            userWeights: {},  // Format: { questionId: 1 | 2 | 3 }
+            keyboardInitialized: false,
+            autosaveTimer: null,
+            chatLog: [
+                { role: 'assistant', text: '¡Hola! Soy tu Copiloto Electoral. Analizaré rigurosamente tus datos frente a las agendas de gobierno reales para despejar tus dudas de forma neutral. ¿Qué te gustaría profundizar?' }
+            ],
+            historyCounter: 0
+        };
+
+        // APPLICATION INITIATION ENTRY POINT
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStateFromStorage();
+            renderScreen();
+        });
+
+        // STORAGE PERSISTENCE SUBSYSTEM
+        function loadStateFromStorage() {
+            try {
+                const rawSession = localStorage.getItem('voto_informado_session');
+                if (rawSession) {
+                    const parsed = JSON.parse(rawSession);
+                    appState.userAnswers = parsed.userAnswers || {};
+                    appState.userWeights = parsed.userWeights || {};
+                    appState.currentScreen = parsed.currentScreen || 0;
+                    appState.currentQuestionIdx = parsed.currentQuestionIdx || 0;
+                    appState.chatLog = parsed.chatLog || appState.chatLog;
+                }
+                const counter = localStorage.getItem('voto_informado_h_count');
+                appState.historyCounter = counter ? parseInt(counter, 10) : 0;
+            } catch (e) {
+                console.error("Error reconociendo persistencia local:", e);
+            }
+        }
+
+        function triggerDebouncedAutosave() {
+            if (appState.autosaveTimer) clearTimeout(appState.autosaveTimer);
+            appState.autosaveTimer = setTimeout(() => {
+                const packageData = {
+                    userAnswers: appState.userAnswers,
+                    userWeights: appState.userWeights,
+                    currentScreen: appState.currentScreen,
+                    currentQuestionIdx: appState.currentQuestionIdx,
+                    chatLog: appState.chatLog
+                };
+                localStorage.setItem('voto_informado_session', JSON.stringify(packageData));
+            }, 300); // 300ms specifications mapping F4
+        }
+
+        function clearSessionData() {
+            appState.userAnswers = {};
+            appState.userWeights = {};
+            appState.currentScreen = 0;
+            appState.currentQuestionIdx = 0;
+            appState.chatLog = [
+                { role: 'assistant', text: '¡Hola! Soy tu Copiloto Electoral. Analizaré rigurosamente tus datos frente a las agendas de gobierno reales para despejar tus dudas de forma neutral. ¿Qué te gustaría profundizar?' }
+            ];
+            localStorage.removeItem('voto_informado_session');
+            renderScreen();
+        }
+
+        // VIEWPORT ROUTER INTERFACE
+        function renderScreen() {
+            const viewport = document.getElementById('app-viewport');
+            
+            // Clean global viewport window listeners if routing away from Quiz
+            if (appState.currentScreen !== 1) {
+                // Keep keyboard mechanics attached safely if needed, but detach layout listeners
+            }
+
+            switch(appState.currentScreen) {
+                case 0:
+                    viewport.innerHTML = buildLandingHTML();
+                    break;
+                case 1:
+                    viewport.innerHTML = buildQuizLayoutHTML();
+                    initializeQuizInteractions();
+                    break;
+                case 2:
+                    viewport.innerHTML = buildReviewHTML();
+                    break;
+                case 3:
+                    viewport.innerHTML = buildDashboardHTML();
+                    renderDashboardChartsAndVisuals();
+                    break;
+                default:
+                    viewport.innerHTML = `<h3>Error de enrutamiento crítico.</h3>`;
+            }
+            window.scrollTo(0,0);
+        }
+
+        function navigateTo(screenIndex) {
+            appState.currentScreen = screenIndex;
+            triggerDebouncedAutosave();
+            renderScreen();
+        }
+
+        // THEME CORE TOGGLE CONTROLLER
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('theme-toggle-btn');
+            if (body.classList.contains('light')) {
+                body.classList.remove('light');
+                btn.textContent = '☀️';
+            } else {
+                body.classList.add('light');
+                btn.textContent = '🌙';
+            }
+            // Dynamic refresh of charts if on dashboard view
+            if (appState.currentScreen === 3) {
+                renderDashboardChartsAndVisuals();
+            }
+        }
+
+        // SCREEN HTML GENERATORS
+        // PANTALLA 0
+        function buildLandingHTML() {
+            const hasSavedData = Object.keys(appState.userAnswers).length > 0;
+            let recoveryBanner = '';
+            
+            if (hasSavedData) {
+                recoveryBanner = `
+                    <div class="session-banner">
+                        <div>
+                            <p style="font-weight: 700; font-size: 0.95rem;">Tienes un progreso guardado en memoria</p>
+                            <p style="font-size: 0.85rem; opacity: 0.8;">Detectamos un diagnóstico previo con ${Object.keys(appState.userAnswers).length} respuestas respondidas.</p>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button class="btn btn-secondary" onclick="clearSessionData()">Borrar e iniciar de cero</button>
+                            <button class="btn btn-primary" onclick="navigateTo(${appState.currentScreen || 1})">Continuar progreso</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            let candidateAvatarsHTML = '';
+            for (const key in CANDIDATES) {
+                const c = CANDIDATES[key];
+                candidateAvatarsHTML += `
+                    <div class="candidate-avatar-wrap">
+                        <div class="avatar" style="--cand-color: ${c.color}">${c.avatarText}</div>
+                        <span class="avatar-name">${c.name}</span>
+                    </div>
+                `;
+            }
+
+            return `
+                ${recoveryBanner}
+                <section class="landing-hero">
+                    <h2 class="landing-title">¿Quién merece tu voto en la Colombia de 2026?</h2>
+                    <p class="landing-subtitle">Analiza los planes de gobierno reales de los candidatos presidenciales mediante datos estructurados y modelos algorítmicos objetivos. Sin sesgos mediáticos.</p>
+                    <div class="landing-actions">
+                        <button class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: var(--radius-lg);" onclick="startFreshQuiz()">Iniciar Diagnóstico</button>
+                        <button class="btn btn-secondary" style="padding: 1rem 2rem; font-size: 1.1rem; border-radius: var(--radius-lg);" onclick="openExploreModeModal()">Solo quiero ver resultados (F3)</button>
+                    </div>
+                </section>
+
+                <section class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Análisis Ponderado</h3>
+                        <p>No todas las problemáticas te importan igual. Gradúa la relevancia de cada eje para calibrar tu resultado específico.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <h3>Copiloto IA Real</h3>
+                        <p>Chat interactivo conectado directamente con Claude para interrogar posturas complejas de los candidatos en tiempo real.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚖️</div>
+                        <h3>Neutralidad Absoluta</h3>
+                        <p>Aplicación estrictamente civil y objetiva. Los resultados emergen directamente de las matrices programáticas de cada partido.</p>
+                    </div>
+                </section>
+
+                <section class="candidates-preview">
+                    <h4>Candidatos Presidenciales Mapeados en el Sistema</h4>
+                    <div class="avatar-row">
+                        ${candidateAvatarsHTML}
+                    </div>
+                </section>
+            `;
+        }
+
+        function startFreshQuiz() {
+            appState.userAnswers = {};
+            appState.userWeights = {};
+            appState.currentQuestionIdx = 0;
+            // Seed defaults
+            BANK_QUESTIONS.forEach(q => { appState.userWeights[q.id] = 2; });
+            navigateTo(1);
+        }
+
+        // PANTALLA 1: QUIZ ARCHITECTURE
+        function buildQuizLayoutHTML() {
+            // Build navigation sidebar items
+            let navItemsHTML = '';
+            BANK_QUESTIONS.forEach((q, idx) => {
+                const isCurrent = idx === appState.currentQuestionIdx ? 'active' : '';
+                let answeredClass = '';
+                if (appState.userAnswers[q.id] !== undefined) {
+                    answeredClass = 'answered';
+                }
+                navItemsHTML += `
+                    <button class="nav-item ${isCurrent} ${answeredClass}" onclick="jumpToQuestion(${idx})" aria-label="Eje temático ${q.topic}">
+                        <div class="nav-status"></div>
+                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${q.id}. ${q.topic}</span>
+                    </button>
+                `;
+            });
+
+            return `
+                <div class="quiz-layout">
+                    <aside class="quiz-sidebar" aria-label="Progreso de ejes temáticos">
+                        <h3 class="sidebar-title">Ejes Electorales</h3>
+                        <nav class="nav-list">
+                            ${navItemsHTML}
+                        </nav>
+                    </aside>
+                    <section class="quiz-main" id="quiz-question-injection-zone">
+                        <!-- Inside question view gets updated dynamically -->
+                    </section>
+                </div>
+            `;
+        }
+
+        function initializeQuizInteractions() {
+            updateQuestionCardDOM();
+            if (!appState.keyboardInitialized) {
+                document.addEventListener('keydown', handleQuizKeyboardShortcuts);
+                appState.keyboardInitialized = true;
+            }
+        }
+
+        function updateQuestionCardDOM() {
+            const target = document.getElementById('quiz-question-injection-zone');
+            if (!target) return;
+
+            const q = BANK_QUESTIONS[appState.currentQuestionIdx];
+            const dimData = BRAND_DIMENSIONS[q.dimension];
+            
+            // Calculate real state metrics
+            const totalQuestions = BANK_QUESTIONS.length;
+            const answeredCount = Object.keys(appState.userAnswers).length;
+            const percentProgress = Math.round((answeredCount / totalQuestions) * 100);
+
+            const userVote = appState.userAnswers[q.id];
+            const userWeight = appState.userWeights[q.id] || 2;
+
+            target.innerHTML = `
+                <div class="progress-header">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--muted);">Progreso General</span>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${percentProgress}%;"></div>
+                    </div>
+                    <span class="monospace" style="font-size: 0.85rem; font-weight: 700;">${answeredCount}/${totalQuestions} (${percentProgress}%)</span>
+                </div>
+
+                <div class="question-card">
+                    <span class="dimension-badge badge-${dimData.id}">${dimData.name} — Eje ${q.topic}</span>
+                    <h3 class="question-text">${q.text}</h3>
+
+                    <div class="glossary-box" id="glossary-component-wrapper">
+                        <button class="glossary-trigger" onclick="toggleGlossaryBox()">
+                            <span>💡 Glosario del término clave</span>
+                            <span id="glossary-arrow-icon">▼</span>
+                        </button>
+                        <div class="glossary-content hidden" id="glossary-content-text">
+                            ${q.glossary}
+                        </div>
+                    </div>
+
+                    <div class="weight-selector-zone">
+                        <p class="weight-label">Asigna la prioridad de este eje en tu criterio:</p>
+                        <div class="weight-buttons">
+                            <button class="weight-btn ${userWeight === 1 ? 'active' : ''}" onclick="setQuestionWeight(1)">Baja (x1)</button>
+                            <button class="weight-btn ${userWeight === 2 ? 'active' : ''}" onclick="setQuestionWeight(2)">Media (x2)</button>
+                            <button class="weight-btn ${userWeight === 3 ? 'active' : ''}" onclick="setQuestionWeight(3)">Alta (x3)</button>
+                        </div>
+                    </div>
+
+                    <div class="vote-actions">
+                        <button class="btn btn-vote btn-vote-no ${userVote === 0 ? 'active' : ''}" onclick="registerUserVote(0)">NO</button>
+                        <button class="btn btn-vote btn-vote-si ${userVote === 1 ? 'active' : ''}" onclick="registerUserVote(1)">SÍ</button>
+                    </div>
+
+                    <div class="quiz-navigation">
+                        <button class="btn btn-secondary" onclick="navigateQuizCard(-1)" ${appState.currentQuestionIdx === 0 ? 'disabled' : ''}>← Anterior</button>
+                        <button class="btn btn-secondary" style="border-color: var(--accent); color: var(--accent);" onclick="navigateTo(2)">Revisar al final</button>
+                        <button class="btn btn-secondary" onclick="navigateQuizCard(1)" ${appState.currentQuestionIdx === totalQuestions - 1 ? 'disabled' : ''}>Siguiente →</button>
+                    </div>
+
+                    <div class="keyboard-shortcuts">
+                        <span><kbd class="key-cap">←</kbd> Votar NO</span>
+                        <span><kbd class="key-cap">→</kbd> Votar SÍ</span>
+                        <span><kbd class="key-cap">1</kbd> <kbd class="key-cap">2</kbd> <kbd class="key-cap">3</kbd> Cambiar Peso</span>
+                        <span><kbd class="key-cap">Esc</kbd> Glosario</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // QUIZ INTERNAL LOGIC HANDLERS
+        function toggleGlossaryBox() {
+            const box = document.getElementById('glossary-component-wrapper');
+            const content = document.getElementById('glossary-content-text');
+            const arrow = document.getElementById('glossary-arrow-icon');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                box.classList.add('open');
+                arrow.textContent = '▲';
+            } else {
+                content.classList.add('hidden');
+                box.classList.remove('open');
+                arrow.textContent = '▼';
+            }
+        }
+
+        function registerUserVote(voteValue) {
+            const q = BANK_QUESTIONS[appState.currentQuestionIdx];
+            appState.userAnswers[q.id] = voteValue;
+            triggerDebouncedAutosave();
+            
+            // Re-render sidebar if available in dynamic tree
+            const sidebar = document.querySelector('.quiz-sidebar');
+            if (sidebar) {
+                // Instantly swap view frame instead of whole rebuilding layout for high-end feel
+                const items = sidebar.querySelectorAll('.nav-item');
+                if (items[appState.currentQuestionIdx]) {
+                    items[appState.currentQuestionIdx].classList.add('answered');
+                }
+            }
+
+            // Auto advance logic with slight delay feel
+            setTimeout(() => {
+                if (appState.currentQuestionIdx < BANK_QUESTIONS.length - 1) {
+                    navigateQuizCard(1);
+                } else {
+                    navigateTo(2); // Auto jump to review screen on final answer
+                }
+            }, 250);
+        }
+
+        function setQuestionWeight(weightValue) {
+            const q = BANK_QUESTIONS[appState.currentQuestionIdx];
+            appState.userWeights[q.id] = weightValue;
+            triggerDebouncedAutosave();
+            updateQuestionCardDOM();
+        }
+
+        function navigateQuizCard(direction) {
+            const targetIdx = appState.currentQuestionIdx + direction;
+            if (targetIdx >= 0 && targetIdx < BANK_QUESTIONS.length) {
+                appState.currentQuestionIdx = targetIdx;
+                triggerDebouncedAutosave();
+                // Update outer wrapper if sidebar needs active update
+                renderScreen();
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            appState.currentQuestionIdx = idx;
+            triggerDebouncedAutosave();
+            renderScreen();
+        }
+
+        function handleQuizKeyboardShortcuts(e) {
+            if (appState.currentScreen !== 1) return; // Guard framework
+            
+            // Prevent interference when using text fields (such as inside the AI Chat block if open)
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+            switch(e.key) {
+                case 'ArrowLeft':
+                    registerUserVote(0);
+                    break;
+                case 'ArrowRight':
+                    registerUserVote(1);
+                    break;
+                case '1':
+                    setQuestionWeight(1);
+                    break;
+                case '2':
+                    setQuestionWeight(2);
+                    break;
+                case '3':
+                    setQuestionWeight(3);
+                    break;
+                case 'Escape':
+                    toggleGlossaryBox();
+                    break;
+            }
+        }
+
+        // PANTALLA 2: REVISIÓN PRE-RESULTADOS
+        function buildReviewHTML() {
+            let tableRowsHTML = '';
+            let missingAnswersFlag = false;
+
+            BANK_QUESTIONS.forEach((q) => {
+                const userAns = appState.userAnswers[q.id];
+                const weight = appState.userWeights[q.id] || 2;
+                let answerText = '<span style="color: var(--muted); font-weight:700;">Sin responder</span>';
+                
+                if (userAns === 1) answerText = `<span class="badge-pos badge-pos-si">SÍ</span>`;
+                if (userAns === 0) answerText = `<span class="badge-pos badge-pos-no">NO</span>`;
+                if (userAns === undefined) missingAnswersFlag = true;
+
+                tableRowsHTML += `
+                    <tr class="review-row">
+                        <td class="monospace" style="font-weight:700; width:60px;">#${q.id}</td>
+                        <td>
+                            <p style="font-weight:600; font-size:0.9rem;">${q.topic}</p>
+                            <p style="font-size:0.8rem; color:var(--muted);">${q.text}</p>
+                        </td>
+                        <td style="width:120px; text-align:center;">${answerText}</td>
+                        <td class="monospace" style="width:100px; text-align:center;">x${weight}</td>
+                        <td style="width:100px; text-align:right;">
+                            <button class="btn btn-secondary" style="padding:0.4rem 0.75rem; font-size:0.75rem;" onclick="jumpToQuestion(${q.id - 1})">Editar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            let alertHeader = '';
+            if (missingAnswersFlag) {
+                alertHeader = `
+                    <div class="alert-banner">
+                        ⚠️ Alerta: Tienes preguntas sin responder. El algoritmo computará estas discrepancias con un score de match nulo (0). Puedes continuar o rellenarlas ahora.
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="review-container">
+                    <h2 style="font-size: 2rem; font-weight:800; letter-spacing:-1px; margin-bottom:0.5rem;">Revisión de Posturas Ciudadanas</h2>
+                    <p style="color:var(--muted); margin-bottom:2rem;">Verifica tus respuestas antes de consolidar la simulación de vectores de afinidad de gobierno.</p>
+                    
+                    ${alertHeader}
+
+                    <table class="review-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Eje Temático</th>
+                                <th style="text-align:center;">Tu Respuesta</th>
+                                <th style="text-align:center;">Prioridad</th>
+                                <th style="text-align:right;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRowsHTML}
+                        </tbody>
+                    </table>
+
+                    <div style="display:flex; justify-content: space-between; align-items:center; margin-top:2rem;">
+                        <button class="btn btn-secondary" onclick="navigateTo(1)">← Regresar al Cuestionario</button>
+                        <button class="btn btn-primary" style="padding:1rem 2rem; font-size:1.05rem;" onclick="processAndSaveResults()">Confirmar y Ver Resultados 🎉</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // CALCULATION ALGORITHMIC SUB-ENGINE
+        function calculateAfinityMetrics() {
+            let results = {};
+
+            // Init structures per candidate mapped
+            for (const key in CANDIDATES) {
+                results[key] = {
+                    candidateId: key,
+                    totalScore: 0,
+                    dimensionScores: { 1: 0, 2: 0, 3: 0, 4: 0 },
+                    dimensionWeightsSum: { 1: 0, 2: 0, 3: 0, 4: 0 },
+                    totalWeightsSum: 0,
+                    matchMatrix: {} // questionId -> boolean match
+                };
+            }
+
+            BANK_QUESTIONS.forEach(q => {
+                const userAns = appState.userAnswers[q.id];
+                const weight = appState.userWeights[q.id] || 2;
+                const dId = q.dimension;
+
+                for (const candKey in CANDIDATES) {
+                    const candAns = CANDIDATES[candKey].answers[q.id];
+                    let match = 0;
+                    
+                    if (userAns !== undefined && userAns === candAns) {
+                        match = 1;
+                    }
+
+                    results[candKey].matchMatrix[q.id] = (userAns !== undefined && userAns === candAns);
+                    
+                    // Summation metrics mapping specification formula
+                    results[candKey].dimensionScores[dId] += (match * weight);
+                    results[candKey].dimensionWeightsSum[dId] += weight;
+
+                    results[candKey].totalScore += (match * weight);
+                    results[candKey].totalWeightsSum += weight;
+                }
+            });
+
+            // Convert raw matrices to percentage profiles
+            let sortedRanking = [];
+            for (const candKey in results) {
+                const item = results[candKey];
+                const finalPercentage = item.totalWeightsSum > 0 ? (item.totalScore / item.totalWeightsSum) * 100 : 0;
+                
+                let dimensionsPercentage = {};
+                for (let d = 1; d <= 4; d++) {
+                    dimensionsPercentage[d] = item.dimensionWeightsSum[d] > 0 ? (item.dimensionScores[d] / item.dimensionWeightsSum[d]) * 100 : 0;
+                }
+
+                sortedRanking.push({
+                    id: candKey,
+                    candidateName: CANDIDATES[candKey].name,
+                    party: CANDIDATES[candKey].party,
+                    color: CANDIDATES[candKey].color,
+                    avatarText: CANDIDATES[candKey].avatarText,
+                    ideology: CANDIDATES[candKey].ideology,
+                    overallMatch: Math.round(finalPercentage),
+                    dimensions: dimensionsPercentage,
+                    matchMatrix: item.matchMatrix
+                });
+            }
+
+            // Sort primary descending order
+            sortedRanking.sort((a, b) => b.overallMatch - a.overallMatch);
+            return sortedRanking;
+        }
+
+        function processAndSaveResults() {
+            // Calculate instantly to append simulation state inside historical storage log before painting view
+            const currentRanking = calculateAfinityMetrics();
+            const topCand = currentRanking[0];
+
+            // Append record safely inside localStorage limits to clear specification 3G
+            try {
+                let currentHistory = JSON.parse(localStorage.getItem('voto_informado_history') || '[]');
+                appState.historyCounter += 1;
+                localStorage.setItem('voto_informado_h_count', appState.historyCounter);
+
+                const newHistoryRecord = {
+                    id: appState.historyCounter,
+                    timestamp: new Date().toLocaleString(), // Fixed native parameter bug mapping checklist item 4
+                    topCandidateName: topCand.candidateName,
+                    score: topCand.overallMatch
+                };
+
+                currentHistory.unshift(newHistoryRecord); // Push front
+                if (currentHistory.length > 5) currentHistory = currentHistory.slice(0, 5); // Max 5 filter specs 3G
+                localStorage.setItem('voto_informado_history', JSON.stringify(currentHistory));
+            } catch(e) {
+                console.error("Fallo escribiendo tracking histórico:", e);
+            }
+
+            navigateTo(3);
+        }
+
+        // PANTALLA 3: DASHBOARD ARCHITECTURE MAIN ENGINE
+        function buildDashboardHTML() {
+            const ranking = calculateAfinityMetrics();
+            const topCandidate = ranking[0];
+            const candMeta = CANDIDATES[topCandidate.id];
+
+            // Sub-dimensional extraction diagnostics computing maximum and minimum indices mapping F2/3E specifications
+            let dimsArr = [
+                { id: 1, name: 'Economía', val: topCandidate.dimensions[1] },
+                { id: 2, name: 'Social', val: topCandidate.dimensions[2] },
+                { id: 3, name: 'Seguridad', val: topCandidate.dimensions[3] },
+                { id: 4, name: 'Futuro', val: topCandidate.dimensions[4] }
+            ];
+            dimsArr.sort((a,b) => b.val - a.val);
+            const highestDim = dimsArr[0];
+            const lowestDim = dimsArr[dimsArr.length - 1];
+
+            // 3C: Heatmap Matrix Builder System
+            let heatmapRowsHTML = '';
+            ranking.forEach(cand => {
+                let cellsHTML = '';
+                BANK_QUESTIONS.forEach(q => {
+                    const matched = cand.matchMatrix[q.id];
+                    const stateClass = matched ? 'match' : 'mismatch';
+                    const tooltipText = `Eje ${q.id}: ${q.topic} — ${matched ? 'Coinciden' : 'Difieren'}`;
+                    cellsHTML += `<div class="heatmap-cell ${stateClass}" data-tooltip="${escapeHtml(tooltipText)}"></div>`;
+                });
+
+                heatmapRowsHTML += `
+                    <div class="heatmap-row">
+                        <div class="heatmap-label" style="border-left: 3px solid ${cand.color}; padding-left:0.5rem;">${cand.candidateName}</div>
+                        <div class="heatmap-grid">${cellsHTML}</div>
+                    </div>
+                `;
+            });
+
+            // 3D: Ranking Engine Render Structure
+            let rankingCardsHTML = '';
+            ranking.forEach((cand, index) => {
+                rankingCardsHTML += `
+                    <div class="ranking-card" style="border-left: 4px solid ${cand.color};">
+                        <div class="ranking-main-row">
+                            <div class="ranking-left">
+                                <span class="ranking-rank">#${index + 1}</span>
+                                <div class="ranking-avatar" style="--cand-color: ${cand.color}">${cand.avatarText}</div>
+                                <div class="ranking-details">
+                                    <h4 class="ranking-name">${cand.candidateName}</h4>
+                                    <p class="ranking-party">${cand.party} | <span style="color:var(--muted);">${cand.ideology}</span></p>
+                                </div>
+                            </div>
+                            <div class="ranking-progress-zone">
+                                <div class="ranking-bar-bg">
+                                    <div class="ranking-bar-fill" style="--cand-color: ${cand.color}; width: ${cand.overallMatch}%;"></div>
+                                </div>
+                                <span class="ranking-score monospace">${cand.overallMatch}%</span>
+                            </div>
+                            <div class="ranking-actions">
+                                <button class="btn btn-secondary" style="padding:0.5rem 0.75rem; font-size:0.8rem;" onclick="openProfileModal('${cand.id}')">Ver Perfil</button>
+                                <button class="btn btn-secondary" style="padding:0.5rem 0.75rem; font-size:0.8rem; border-color:var(--primary); color:var(--primary);" onclick="openComparisonModal('${cand.id}')">Comparar</button>
+                            </div>
+                        </div>
+                        <div class="ranking-expanded-panel">
+                            <div class="sub-score-box">
+                                <p class="sub-score-label">Economía</p>
+                                <p class="sub-score-val monospace" style="color:#818cf8;">${Math.round(cand.dimensions[1])}%</p>
+                            </div>
+                            <div class="sub-score-box">
+                                <p class="sub-score-label">Social</p>
+                                <p class="sub-score-val monospace" style="color:#34d399;">${Math.round(cand.dimensions[2])}%</p>
+                            </div>
+                            <div class="sub-score-box">
+                                <p class="sub-score-label">Seguridad</p>
+                                <p class="sub-score-val monospace" style="color:#fb7185;">${Math.round(cand.dimensions[3])}%</p>
+                            </div>
+                            <div class="sub-score-box">
+                                <p class="sub-score-label">Futuro</p>
+                                <p class="sub-score-val monospace" style="color:#fbbf24;">${Math.round(cand.dimensions[4])}%</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // 3E: Dimensional Mini-Cards Generator
+            let dimMiniCardsHTML = '';
+            const dimStyleMappers = {
+                1: { title: 'Economía', style: 'color:#818cf8;' },
+                2: { title: 'Social', style: 'color:#34d399;' },
+                3: { title: 'Seguridad', style: 'color:#fb7185;' },
+                4: { title: 'Futuro', style: 'color:#fbbf24;' }
+            };
+            for (let d = 1; d <= 4; d++) {
+                const map = dimStyleMappers[d];
+                const scoreVal = Math.round(topCandidate.dimensions[d]);
+                let contextNote = scoreVal > 60 ? 'Afinidad programática robusta.' : 'Discrepancias notables en ejes críticos.';
+                dimMiniCardsHTML += `
+                    <div class="dimension-analysis-card">
+                        <div class="dim-card-top">
+                            <h4 class="dim-card-title" style="${map.style}">${map.title}</h4>
+                            <p class="dim-card-diagnostic">${contextNote}</p>
+                        </div>
+                        <div class="monospace" style="font-size:1.75rem; font-weight:700; margin-top:0.5rem; ${map.style}">${scoreVal}%</div>
+                    </div>
+                `;
+            }
+
+            // 3F: Chat History System Parser
+            let chatMessagesHTML = '';
+            appState.chatLog.forEach(m => {
+                chatMessagesHTML += `<div class="chat-msg ${m.role}">${escapeHtml(m.text)}</div>`;
+            });
+
+            // 3G: History Record Grid Parser
+            let historyCardsHTML = '';
+            try {
+                const historyArr = JSON.parse(localStorage.getItem('voto_informado_history') || '[]');
+                historyArr.forEach(h => {
+                    historyCardsHTML += `
+                        <div class="history-card">
+                            <p class="history-date monospace">${h.timestamp}</p>
+                            <p class="history-top-cand">${h.topCandidateName}</p>
+                            <p class="monospace" style="color:var(--primary); font-weight:700;">${h.score}% match</p>
+                        </div>
+                    `;
+                });
+                if (historyArr.length === 0) {
+                    historyCardsHTML = `<p style="grid-column: span 5; color:var(--muted); font-size:0.85rem; text-align:center;">No hay simulaciones históricas registradas en este navegador.</p>`;
+                }
+            } catch(e) {
+                historyCardsHTML = `<p style="grid-column: span 5; color:var(--danger);">Error cargando histórico.</p>`;
+            }
+
+            return `
+                <div class="dashboard-grid" id="printable-dashboard-area">
+                    
+                    <!-- 3A. HERO SECTION -->
+                    <section class="result-hero" style="--cand-glow: ${candMeta.color}40;">
+                        <div class="result-hero-left">
+                            <div class="result-affinity-score monospace">${topCandidate.overallMatch}%</div>
+                            <p style="font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:0.5rem; font-weight:700;">Máxima Afinidad Detectada</p>
+                            <h2 class="result-candidate-name">${topCandidate.candidateName}</h2>
+                            <span class="ideology-badge">${topCandidate.ideology}</span>
+                        </div>
+                        <div class="result-hero-right">
+                            <div class="big-avatar" style="--cand-color: ${candMeta.color};">${candMeta.avatarText}</div>
+                        </div>
+                    </section>
+
+                    <!-- F2: COMPONENT SPECTRUM PLOT - INJECTED DIRECTLY BEFORE VISUAL DIAGRAMS FOR GEOMETRIC CLARITY -->
+                    <section class="viz-card" style="text-align:center;">
+                        <h3>Ubicación Proyectada en el Espectro Político (F2)</h3>
+                        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1.5rem;">Cálculo vectorial de tus respuestas frente al cuadrante ideológico colombiano de 2026.</p>
+                        <div class="scatter-container">
+                            <div class="scatter-plot-box" id="ideological-quadrant-map-frame">
+                                <div class="scatter-axis-x"></div>
+                                <div class="scatter-axis-y"></div>
+                                <span class="scatter-label top">Progresista / Social</span>
+                                <span class="scatter-label bottom">Conservador / Tradicional</span>
+                                <span class="scatter-label left">Intervencionismo</span>
+                                <span class="scatter-label right">Libre Mercado</span>
+                                <!-- Dots get dynamically added by script post-render -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 3B & 3C VISUAL DIAGRAMS CONTAINER -->
+                    <div class="viz-row">
+                        <!-- 3B. Radar Matrix -->
+                        <div class="viz-card">
+                            <h3>Afinidad Comparativa por Eje</h3>
+                            <div class="radar-container">
+                                <canvas id="radarChartCanvas"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 3C. Heatmap Structural Matrix -->
+                        <div class="viz-card">
+                            <h3>Heatmap de Coincidencia Exacta</h3>
+                            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1.5rem;">Celdas de color indican alineación total, celdas opacas señalan divergencia de agenda.</p>
+                            <div class="heatmap-matrix">
+                                ${heatmapRowsHTML}
+                            </div>
+                            <div class="heatmap-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: var(--success);"></div>
+                                    <span>Coincide</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: var(--border);"></div>
+                                    <span>Difiere / Sin dato</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3D. RANKING LIST SECTION -->
+                    <section class="ranking-section">
+                        <h3>Clasificación General de Agendas Presidenciales</h3>
+                        <div class="ranking-list">
+                            ${rankingCardsHTML}
+                        </div>
+                    </section>
+
+                    <!-- 3E. DIMENSIONAL DIAGNOSTIC GRID -->
+                    <section>
+                        <h3 style="font-size:1.25rem; margin-bottom:1rem;">Diagnóstico Cuantitativo Ponderado</h3>
+                        <div class="dimensions-grid">
+                            ${dimMiniCardsHTML}
+                        </div>
+                    </section>
+
+                    <!-- 3F. AI COPILOT CHAT COMPONENT INTERFACE -->
+                    <section class="ai-copilot-card">
+                        <div class="ai-header">
+                            <div class="ai-title-wrap">
+                                <span class="ai-sparkle">✨</span>
+                                <div>
+                                    <h3 style="font-size:1.25rem; font-weight:700;">Copiloto IA Neutral (Claude 3.5 Sonnet)</h3>
+                                    <p style="font-size:0.85rem; color:var(--muted);">Consulta y profundiza los porqués de tu afinidad algorítmica.</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" style="padding:0.4rem 0.75rem; font-size:0.75rem;" onclick="clearChatHistoryLogs()">Limpiar Conversación</button>
+                        </div>
+
+                        <div class="ai-chat-history" id="chat-scroller-injection-target">
+                            ${chatMessagesHTML}
+                        </div>
+
+                        <div class="prompt-pills-row">
+                            <button class="prompt-pill" onclick="fireSuggestedPrompt(this)">¿Por qué obtuve este resultado?</button>
+                            <button class="prompt-pill" onclick="fireSuggestedPrompt(this)">Explícame la postura de ${topCandidate.candidateName} sobre economía</button>
+                            <button class="prompt-pill" onclick="fireSuggestedPrompt(this)">¿Cuál es el argumento más fuerte a favor y en contra del Fracking?</button>
+                        </div>
+
+                        <div class="chat-input-wrapper">
+                            <input type="text" id="chat-input-field" class="chat-input" placeholder="Escribe tu pregunta sobre las propuestas de los candidatos..." onkeydown="handleChatFieldKeyDown(event)">
+                            <button class="btn btn-primary" onclick="submitChatQueryAction()">Consultar</button>
+                        </div>
+                    </section>
+
+                    <!-- 3G. HISTORICAL SIMULATION LOG ENTRIES -->
+                    <section class="history-section">
+                        <h3>Historial de Simulaciones Recientes (Máx 5)</h3>
+                        <div class="history-grid">
+                            ${historyCardsHTML}
+                        </div>
+                        <div style="text-align:right; margin-top:1rem;">
+                            <button class="btn btn-danger" style="padding:0.4rem 0.75rem; font-size:0.75rem;" onclick="wipeAllHistoricalEntries()">Borrar Historial</button>
+                        </div>
+                    </section>
+
+                    <!-- 3H. ACTION TRUTH FINAL LAYER BUTTONS -->
+                    <section class="final-actions-row">
+                        <button class="btn btn-secondary" onclick="exportDashboardToPDFSystem()">📥 Exportar Reporte PDF Completo</button>
+                        <button class="btn btn-secondary" onclick="executeShareClipboardLink()">🔗 Compartir Resultados</button>
+                        <button class="btn btn-primary" onclick="startFreshQuiz()">🔄 Reiniciar Diagnóstico</button>
+                    </section>
+
+                </div>
+            `;
+        }
+
+        // CHART AND GEOMETRIC RENDERING INTERFACES
+        function renderDashboardChartsAndVisuals() {
+            const ranking = calculateAfinityMetrics();
+            
+            // 1. SCATTER SPECTRUM CANVAS DOT GENERATOR INTERFACE (F2)
+            const scatterFrame = document.getElementById('ideological-quadrant-map-frame');
+            if (scatterFrame) {
+                // Clear out existing dynamic dots securely
+                const existingDots = scatterFrame.querySelectorAll('.scatter-dot');
+                existingDots.forEach(d => d.remove());
+
+                // Inject Candidate points
+                for (const key in CANDIDATES) {
+                    const c = CANDIDATES[key];
+                    // Convert axes coordinate from [-1, 1] grid mapping space to percentages [0, 100]
+                    const leftPct = ((c.x_axis + 1) / 2) * 100;
+                    const bottomPct = ((c.y_axis + 1) / 2) * 100; 
+
+                    const dot = document.createElement('div');
+                    dot.className = 'scatter-dot';
+                    dot.style.backgroundColor = c.color;
+                    dot.style.left = `${leftPct}%`;
+                    dot.style.bottom = `${bottomPct}%`;
+                    dot.setAttribute('title', `${c.name} (${c.ideology})`);
+                    
+                    // Attach dynamic simple modal click interface
+                    dot.addEventListener('click', () => openProfileModal(c.id));
+                    scatterFrame.appendChild(dot);
+                }
+
+                // Compute exact weighted center point of the current User mapping profile (F2)
+                let userX = 0;
+                let userY = 0;
+                let weightSum = 0;
+
+                BANK_QUESTIONS.forEach(q => {
+                    const ans = appState.userAnswers[q.id];
+                    const w = appState.userWeights[q.id] || 2;
+                    if (ans !== undefined) {
+                        // Base vector translation schema: SÍ shifts to specific candidate orientation zones, NO shifts away
+                        // To achieve objective plotting, calculate user location by average candidate answer dot weight shifts
+                        weightSum += w;
+                    }
+                });
+
+                // Simplified matrix approximation for user ideological alignment based on responses:
+                // Economy mapping: high taxes/intervention (1,3,4) = Left (-x), free market (2,5,6) = Right (+x)
+                // Social/Security mapping: progressivism/peace talk (7,8,10,11,13,22,23) = Up (+y), security punitive (14,15,18) = Down (-y)
+                let netX = 0; let netY = 0; let totalXW = 0; let totalYW = 0;
+                
+                // Eco tracking vectors
+                if(appState.userAnswers[1] === 1) { netX -= 0.5; totalXW++; } else if(appState.userAnswers[1] === 0) { netX += 0.5; totalXW++; }
+                if(appState.userAnswers[2] === 1) { netX += 0.6; totalXW++; } else if(appState.userAnswers[2] === 0) { netX -= 0.6; totalXW++; }
+                if(appState.userAnswers[3] === 1) { netX -= 0.4; totalXW++; } else if(appState.userAnswers[3] === 0) { netX += 0.4; totalXW++; }
+                
+                // Social / Security vectors
+                if(appState.userAnswers[7] === 1) { netY += 0.5; totalYW++; } else if(appState.userAnswers[7] === 0) { netY -= 0.5; totalYW++; }
+                if(appState.userAnswers[13] === 1) { netY += 0.6; totalYW++; } else if(appState.userAnswers[13] === 0) { netY -= 0.6; totalYW++; }
+                if(appState.userAnswers[14] === 1) { netY -= 0.7; totalYW++; } else if(appState.userAnswers[14] === 0) { netY += 0.7; totalYW++; }
+
+                userX = totalXW > 0 ? (netX / totalXW) : 0;
+                userY = totalYW > 0 ? (netY / totalYW) : 0;
+
+                // Restrict constraints cleanly inside boundaries
+                userX = Math.max(-0.95, Math.min(0.95, userX));
+                userY = Math.max(-0.95, Math.min(0.95, userY));
+
+                const uLeftPct = ((userX + 1) / 2) * 100;
+                const uBottomPct = ((userY + 1) / 2) * 100;
+
+                const userDot = document.createElement('div');
+                userDot.className = 'scatter-dot user-dot';
+                userDot.style.left = `${uLeftPct}%`;
+                userDot.style.bottom = `${uBottomPct}%`;
+                userDot.setAttribute('title', 'Tú (Perfil Calculado)');
+                scatterFrame.appendChild(userDot);
+            }
+
+            // 2. RADAR CANVAS CONFIGURATION INTERFACE (3B)
+            const ctx = document.getElementById('radarChartCanvas');
+            if (!ctx) return;
+
+            // Detect light status parameters to bypass hardcoded visual rendering crashes (Bug Fix 9)
+            const isLight = document.body.classList.contains('light');
+            const gridColor = isLight ? 'rgba(15, 23, 42, 0.1)' : 'rgba(248, 250, 252, 0.08)';
+            const labelColor = isLight ? '#0f172a' : '#f8fafc';
+
+            // Extract labels
+            const labels = ['Economía', 'Social', 'Seguridad', 'Futuro'];
+            
+            // Build datasets dynamically from calculation streams
+            const datasets = ranking.map(cand => {
+                return {
+                    label: cand.candidateName,
+                    data: [
+                        cand.dimensions[1],
+                        cand.dimensions[2],
+                        cand.dimensions[3],
+                        cand.dimensions[4]
+                    ],
+                    borderColor: cand.color,
+                    backgroundColor: `${cand.color}15`,
+                    pointBackgroundColor: cand.color,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: cand.color,
+                    borderWidth: 2
+                };
+            });
+
+            new Chart(ctx, {
+                type: 'radar',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: gridColor },
+                            grid: { color: gridColor },
+                            pointLabels: { color: labelColor, font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' } },
+                            ticks: { display: false, stepSize: 20 },
+                            min: 0,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: labelColor, font: { family: 'Plus Jakarta Sans', size: 11 } }
+                        }
+                    }
+                }
+            });
+
+            // Auto-scroll the chat view safely to base level context anchor
+            scrollChatToBottom();
+        }
+
+        // HISTORICAL SUB-ENGINE WIPERS
+        function wipeAllHistoricalEntries() {
+            if (confirm('¿Estás seguro de querer borrar por completo el registro histórico local?')) {
+                localStorage.removeItem('voto_informado_history');
+                localStorage.setItem('voto_informado_h_count', '0');
+                appState.historyCounter = 0;
+                renderScreen();
+                if(appState.currentScreen === 3) renderDashboardChartsAndVisuals();
+            }
+        }
+
+        // CHAT INTERACTION WORKFLOW ENGINE
+        function scrollChatToBottom() {
+            const target = document.getElementById('chat-scroller-injection-target');
+            if (target) {
+                target.scrollTop = target.scrollHeight;
+            }
+        }
+
+        function handleChatFieldKeyDown(e) {
+            if (e.key === 'Enter') {
+                submitChatQueryAction();
+            }
+        }
+
+        function fireSuggestedPrompt(btnElement) {
+            const text = btnElement.textContent;
+            const input = document.getElementById('chat-input-field');
+            if (input) {
+                input.value = text;
+                submitChatQueryAction();
+            }
+        }
+
+        function clearChatHistoryLogs() {
+            appState.chatLog = [
+                { role: 'assistant', text: 'Conversación reiniciada de forma segura. ¿En qué puedo ayudarte a profundizar ahora?' }
+            ];
+            triggerDebouncedAutosave();
+            const target = document.getElementById('chat-scroller-injection-target');
+            if (target) {
+                target.innerHTML = `<div class="chat-msg assistant">Conversación reiniciada de forma segura. ¿En qué puedo ayudarte a profundizar ahora?</div>`;
+            }
+        }
+
+        // COMPONENT XSS SANITIZATION (Bug Fix 5 / Quality Standard 2)
+        function escapeHtml(string) {
+            if (!string) return '';
+            return string
+                .toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ANTHROPIC COMPILATION REAL INTEGRATION SUITE (3F)
+        async function submitChatQueryAction() {
+            const input = document.getElementById('chat-input-field');
+            if (!input) return;
+
+            const queryText = input.value.trim();
+            if (!queryText) return;
+
+            // Instantly append view to user message frame
+            appState.chatLog.push({ role: 'user', text: queryText });
+            appendMessageToChatDOM('user', queryText);
+            input.value = ''; // Clean box instantly for responsive feel
+            scrollChatToBottom();
+
+            // Inject temporary loading bubble state
+            appendMessageToChatDOM('assistant', 'Analizando datos con Claude...', 'temp-loading-bubble-id');
+            scrollChatToBottom();
+
+            // Build structural context tokens mapping system prompt dynamics required in section 3F
+            const ranking = calculateAfinityMetrics();
+            const totalQuestions = BANK_QUESTIONS.length;
+            const answeredCount = Object.keys(appState.userAnswers).length;
+            
+            let userPositionsString = '';
+            BANK_QUESTIONS.forEach(q => {
+                const ans = appState.userAnswers[q.id];
+                const label = ans === 1 ? 'SÍ' : (ans === 0 ? 'NO' : 'Sin responder');
+                userPositionsString += `- Eje ${q.id} (${q.topic}): ${label}\n`;
+            });
+
+            let candidateMatrixString = 'Matriz de respuestas de candidatos (1=SÍ, 0=NO):\n';
+            for (const k in CANDIDATES) {
+                candidateMatrixString += `* ${CANDIDATES[k].name}: ${JSON.stringify(CANDIDATES[k].answers)}\n`;
+            }
+
+            const dynamicSystemPrompt = `Eres un analista electoral colombiano experto en las elecciones presidenciales de 2026.
+Eres neutral, riguroso y usas lenguaje accesible para ciudadanos colombianos.
+
+CONTEXTO DEL USUARIO:
+- Ha respondido ${answeredCount} de ${totalQuestions} ejes electorales.
+- Su candidato con mayor afinidad es ${ranking[0].candidateName} con ${ranking[0].overallMatch}% de coincidencia.
+- Ranking completo: ${ranking.map(c => `${c.candidateName} (${c.overallMatch}%)`).join(', ')}.
+- Dimensión con mayor afinidad: Dimensión ${ranking[0].id} (${Math.round(ranking[0].dimensions[1])}% en Eco como muestra).
+
+POSICIONES DEL USUARIO:
+${userPositionsString}
+
+POSICIONES DE LOS CANDIDATOS:
+${candidateMatrixString}
+
+INSTRUCCIONES:
+- Responde en máximo 200 palabras de forma directa.
+- Sé específico, cita ejes concretos cuando sea relevante para iluminar el porqué del match.
+- No hagas proselitismo ni recomendaciones directas de voto. Mantén neutralidad suiza.
+- Si preguntan sobre un tema totalmente ajeno a los ejes del cuestionario o elecciones, advierte de forma cortés que queda fuera del diagnóstico técnico de la app.
+- Usa markdown simple para estructurar la respuesta limpia.`;
+
+            // EXTRACT API KEY FROM DECLARED PLACEHOLDER SYSTEM
+            const ANTHROPIC_API_KEY = 'TU_API_KEY_AQUI';
+
+            if (ANTHROPIC_API_KEY === 'TU_API_KEY_AQUI' || !ANTHROPIC_API_KEY) {
+                // Fallback elegant notification framework if placeholder is still sealed
+                setTimeout(() => {
+                    removeTemporaryLoadingBubble('temp-loading-bubble-id');
+                    const errorWarning = "[Aviso de Desarrollador] El Copiloto IA real requiere una API Key válida de Anthropic configurada en el script de este archivo. Por favor abre el archivo fuente con un editor y edita la constante ANTHROPIC_API_KEY con tu clave de API para habilitar las llamadas directas en vivo con claude-sonnet.";
+                    appState.chatLog.push({ role: 'assistant', text: errorWarning });
+                    appendMessageToChatDOM('assistant', errorWarning);
+                    scrollChatToBottom();
+                    triggerDebouncedAutosave();
+                }, 800);
+                return;
+            }
+
+            // Real fetch framework execution to Anthropic API endpoint
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': ANTHROPIC_API_KEY,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerously-allow-the-frontend': 'true' // Frontend fetch validation flag overrides
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-3-5-sonnet-20241022',
+                        max_tokens: 400,
+                        system: dynamicSystemPrompt,
+                        messages: [
+                            { role: 'user', content: queryText }
+                        ]
+                    })
+                });
+
+                removeTemporaryLoadingBubble('temp-loading-bubble-id');
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error?.message || 'Error de pasarela de red con API');
+                }
+
+                const data = await response.json();
+                const aiReplyText = data.content[0].text;
+
+                appState.chatLog.push({ role: 'assistant', text: aiReplyText });
+                appendMessageToChatDOM('assistant', aiReplyText);
+                scrollChatToBottom();
+                triggerDebouncedAutosave();
+
+            } catch (err) {
+                console.error("Fallo de API:", err);
+                removeTemporaryLoadingBubble('temp-loading-bubble-id');
+                const failureMsg = `Error al conectar con el servidor de Anthropic: ${err.message}. Verifica tu conexión a internet o el estado de tu API Key.`;
+                appendMessageToChatDOM('assistant', failureMsg);
+                scrollChatToBottom();
+            }
+        }
+
+        function appendMessageToChatDOM(role, text, optionalId = null) {
+            const scroller = document.getElementById('chat-scroller-injection-target');
+            if (!scroller) return;
+
+            const div = document.createElement('div');
+            div.className = `chat-msg ${role}`;
+            if (optionalId) div.id = optionalId;
+            div.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+            scroller.appendChild(div);
+        }
+
+        function removeTemporaryLoadingBubble(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        // REPORT EXPORT AND SHARE UTILITY SUITE
+        function exportDashboardToPDFSystem() {
+            // Target elements wrapper bounding box fix mapping audit item 6
+            const element = document.getElementById('printable-dashboard-area');
+            if (!element) return;
+
+            const isLight = document.body.classList.contains('light');
+            const targetBg = isLight ? '#f1f5f9' : '#030712'; // Correct dynamic canvas configuration requirement 3H
+
+            const opt = {
+                margin:       0.5,
+                filename:     'Voto_Informado_2026_Reporte.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, backgroundColor: targetBg, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Run html2pdf package workflow execution line
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function executeShareClipboardLink() {
+            const ranking = calculateAfinityMetrics();
+            const top = ranking[0];
+            const textToCopy = `Mi simulación en Voto Informado 2.0 (Elecciones Colombia 2026) indica una afinidad máxima del ${top.overallMatch}% con la agenda programática de ${top.candidateName}. ¡Haz tu diagnóstico libre de sesgos mediáticos!`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('¡Resumen de afinidad copiado al portapapeles con éxito! Listo para difundir.');
+            }).catch(err => {
+                console.error('Error operando portapapeles:', err);
+            });
+        }
+
+        // MODAL LAYER ARCHITECTURE ACTIONS (F1 / F3 / Profiles)
+        const modalContainer = document.getElementById('modal-container');
+
+        function openModalWithHTML(htmlContent) {
+            if (!modalContainer) return;
+            modalContainer.innerHTML = `
+                <div class="modal-window">
+                    <button class="modal-close" onclick="closeActiveModalSystemWindow()" aria-label="Cerrar ventana emergente">✕</button>
+                    ${htmlContent}
+                </div>
+            `;
+            modalContainer.classList.remove('hidden');
+        }
+
+        function closeActiveModalSystemWindow() {
+            if (!modalContainer) return;
+            modalContainer.classList.add('hidden');
+            modalContainer.innerHTML = '';
+        }
+
+        // Close on background click protection framework
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                closeActiveModalSystemWindow();
+            }
+        });
+
+        // F1: COMPARISON DIRECT COMPONENT LOGIC
+        function openComparisonModal(candId2) {
+            // Compare base ranking cand 1 (User choice default) vs candId2
+            const ranking = calculateAfinityMetrics();
+            const candId1 = ranking[0].id; // Use top match candidate as comparative baseline anchor
+            
+            const c1 = CANDIDATES[candId1];
+            const c2 = CANDIDATES[candId2];
+
+            let tableRows = '';
+            BANK_QUESTIONS.forEach(q => {
+                const ans1 = c1.answers[q.id];
+                const ans2 = c2.answers[q.id];
+                const areDifferent = ans1 !== ans2;
+                const rowClass = areDifferent ? 'comp-diff-row' : '';
+
+                const badge1 = ans1 === 1 ? '<span class="badge-pos badge-pos-si">SÍ</span>' : '<span class="badge-pos badge-pos-no">NO</span>';
+                const badge2 = ans2 === 1 ? '<span class="badge-pos badge-pos-si">SÍ</span>' : '<span class="badge-pos badge-pos-no">NO</span>';
+
+                tableRows += `
+                    <tr class="${rowClass}">
+                        <td class="monospace" style="font-weight:700;">#${q.id}</td>
+                        <td>
+                            <p style="font-weight:600; font-size:0.85rem;">${q.topic}</p>
+                            <p style="font-size:0.75rem; color:var(--muted);">${q.text}</p>
+                        </td>
+                        <td style="text-align:center;">${badge1}</td>
+                        <td style="text-align:center;">${badge2}</td>
+                        <td style="text-align:center; font-weight:700; font-size:0.8rem;">
+                            ${areDifferent ? '<span style="color:var(--accent);">Divergen</span>' : '<span style="color:var(--success);">Coinciden</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            const content = `
+                <h3 class="modal-title">Modo Comparación Directa (F1)</h3>
+                <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1.5rem;">Contraste programático directo cara a cara entre candidatos en los 24 ejes temáticos evaluados.</p>
+                
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th style="width:50px;">Eje</th>
+                            <th>Descripción de la Propuesta</th>
+                            <th style="text-align:center; width:130px;">${c1.name}</th>
+                            <th style="text-align:center; width:130px;">${c2.name}</th>
+                            <th style="text-align:center; width:110px;">Relación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            `;
+            openModalWithHTML(content);
+        }
+
+        // PROFILE MODAL METRIC VIEWS
+        function openProfileModal(candId) {
+            const c = CANDIDATES[candId];
+            
+            let proposalsListHTML = '';
+            BANK_QUESTIONS.forEach(q => {
+                const ans = c.answers[q.id];
+                const badge = ans === 1 ? '<span class="badge-pos badge-pos-si">SÍ</span>' : '<span class="badge-pos badge-pos-no">NO</span>';
+                proposalsListHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid var(--border); font-size:0.85rem;">
+                        <span style="font-weight:600; max-width:80%;">${q.id}. ${q.topic}: <span style="font-weight:400; color:var(--muted);">${q.text}</span></span>
+                        ${badge}
+                    </div>
+                `;
+            });
+
+            const html = `
+                <h3 class="modal-title" style="border-bottom: 2px solid ${c.color}; padding-bottom:0.5rem;">${c.name}</h3>
+                <p class="monospace" style="color:${c.color}; font-weight:700; margin-bottom:1rem;">${c.party} | Perfil: ${c.ideology}</p>
+                
+                <div style="background-color:var(--bg-inner); padding:1rem; border-radius:var(--radius-md); margin-bottom:1.5rem;">
+                    <h4 style="font-size:0.9rem; text-transform:uppercase; margin-bottom:0.25rem; color:var(--muted);">Trayectoria Histórica</h4>
+                    <p style="font-size:0.9rem; line-height:1.4;">${c.timeline}</p>
+                </div>
+
+                <h4 style="font-size:1rem; margin-bottom:0.75rem;">Matriz de Posiciones Oficiales Programáticas</h4>
+                <div style="max-height:250px; overflow-y:auto; padding-right:0.5rem;">
+                    ${proposalsListHTML}
+                </div>
+            `;
+            openModalWithHTML(html);
+        }
+
+        // F3: EXPLORE RADICAL COMPONENT MODE DIRECT RESULTS BYPASS
+        function openExploreModeModal() {
+            let exploreCardsHTML = '';
+            
+            for (const key in CANDIDATES) {
+                const c = CANDIDATES[key];
+                exploreCardsHTML += `
+                    <div class="explore-cand-card" style="border-top: 4px solid ${c.color};">
+                        <h4 style="font-size:1.15rem; margin-bottom:0.25rem;">${c.name}</h4>
+                        <p class="monospace" style="font-size:0.75rem; color:${c.color}; font-weight:700; margin-bottom:1rem;">${c.party}</p>
+                        <p style="font-size:0.8rem; color:var(--muted); line-height:1.4; margin-bottom:1rem;">${c.timeline}</p>
+                        <button class="btn btn-secondary" style="padding:0.4rem 0.75rem; font-size:0.75rem; width:100%;" onclick="closeActiveModalSystemWindow(); openProfileModal('${c.id}')">Explorar Ficha de Propuestas Completa →</button>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <h3 class="modal-title">Fichas Técnicas Programáticas (F3)</h3>
+                <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1.5rem;">Explora los vectores de datos directamente sin pasar por el test de afinidad ciudadana.</p>
+                <div class="explore-grid">
+                    ${exploreCardsHTML}
+                </div>
+            `;
+            openModalWithHTML(html);
+        }
+    </script>
+</body>
+</html>
