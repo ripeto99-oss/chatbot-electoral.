@@ -21,16 +21,17 @@ else:
 
 if GOOGLE_API_KEY:
     try:
+        # Forzamos la configuración de la API Key en la raíz del paquete
         genai.configure(api_key=GOOGLE_API_KEY)
         
-        # Comportamiento fijo del sistema para garantizar la neutralidad electoral
+        # Instrucción de sistema fija para garantizar respuestas neutrales
         instrucciones = (
             "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
             "de forma totalmente objetiva y sin sesgos politicos. Utiliza unicamente datos programaticos "
             "reales para explicar el panorama de manera educativa y equilibrada."
         )
         
-        # Filtros de seguridad con las strings nativas que acepta la API sin romper la importacion
+        # Desactivamos bloqueos por temáticas políticas sensibles
         filtros_seguridad = [
             {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
             {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -38,6 +39,7 @@ if GOOGLE_API_KEY:
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
         ]
         
+        # Inicialización del modelo estándar
         model = genai.GenerativeModel(
             model_name='gemini-1.5-flash',
             system_instruction=instrucciones,
@@ -46,7 +48,7 @@ if GOOGLE_API_KEY:
     except Exception as e:
         st.error(f"Error al inicializar Gemini: {e}")
 else:
-    st.error("Configuracion incompleta: No se encontro la variable GEMINI_API_KEY.")
+    st.error("Configuracion incompleta: No se encontro la variable GEMINI_API_KEY en Secrets.")
 
 # ==========================================
 # 3. CACHE DE IMAGENES
@@ -201,16 +203,16 @@ st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Mostramos el historial guardado en la sesión
+# Desplegamos de forma limpia el historial acumulado
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Captura de datos limpia y sin bucles de refresco
+# Entrada de texto del usuario
 user_prompt = st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Fajardo...")
 
 if user_prompt:
-    # Mostramos y guardamos el mensaje del usuario inmediatamente
+    # Dibujamos y guardamos la pregunta inmediatamente
     with st.chat_message("user"):
         st.markdown(user_prompt)
     st.session_state.messages.append({"role": "user", "content": user_prompt})
@@ -225,25 +227,25 @@ if user_prompt:
             f"Pregunta del ciudadano: {user_prompt}"
         )
         
-        # Generamos la respuesta directamente en su caja correspondiente
+        # Procesamos la caja del bot de forma directa
         with st.chat_message("assistant"):
             with st.spinner("Pensando respuesta neutral..."):
                 try:
-                    response = model.generate_content(
-                        contexto_datos,
-                        request_options={"timeout": 15.0}
-                    )
+                    # Llamada limpia nativa compatible con las nuevas llaves AQ.
+                    response = model.generate_content(contexto_datos)
                     
                     if response and hasattr(response, 'text') and response.text:
                         bot_response = response.text
                         st.markdown(bot_response)
                         st.session_state.messages.append({"role": "assistant", "content": bot_response})
                     else:
-                        st.warning("La API de Google no devolvio texto. Puede deberse a limites de cuota de la llave.")
+                        st.error("Google proceso la consulta pero no retorno un cuerpo de texto válido.")
                 except Exception as e:
-                    st.error(f"Fallo en la respuesta del modelo: {e}")
+                    # Cuadro de diagnóstico directo en caso de error
+                    st.error(f"Fallo en la respuesta del modelo:")
+                    st.code(str(e))
     else:
-        st.warning("Falta la API Key para procesar tu consulta.")
+        st.warning("No se puede conectar con el asistente porque falta la API Key en los Secrets.")
 
 # ==========================================
 # 7. INTERFAZ INCRUSTADA
