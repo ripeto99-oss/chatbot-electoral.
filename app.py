@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import google.generativeai as genai
+from google.generativeai.types import SafetySetting, HarmCategory, HarmBlockThreshold
 import base64
 import os
 
@@ -23,22 +24,21 @@ if GOOGLE_API_KEY:
     try:
         genai.configure(api_key=GOOGLE_API_KEY)
         
-        # Definimos las instrucciones de comportamiento fijas del sistema de forma limpia
+        # Comportamiento fijo del sistema de forma limpia
         instrucciones = (
             "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
-            "de forma totalmente objetiva y sin sesgos políticos. Utiliza únicamente datos programáticos "
+            "de forma totalmente objetiva y sin sesgos politicos. Utiliza unicamente datos programaticos "
             "reales para explicar el panorama de manera educativa y equilibrada."
         )
         
-        # Desactivamos los bloqueos automáticos por temáticas políticas sensibles
+        # Estructura nativa y segura para desactivar bloqueos automaticos por temas politicos
         filtros_seguridad = [
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE),
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=HarmBlockThreshold.BLOCK_NONE),
         ]
         
-        # Inicializamos el modelo con la configuración avanzada
         model = genai.GenerativeModel(
             model_name='gemini-1.5-flash',
             system_instruction=instrucciones,
@@ -156,7 +156,7 @@ candidatos = [
     {
         "col": col1, "nombre": "Abelardo de la Espriella", "partido": "Derecha / Conservador", "foto": "abelardo.jpg",
         "css_custom": "object-position: center 15%; transform: scale(1.05);",
-        "propuesta": "Enfoque de seguridad estricta, libre mercado, reduccion drastica del gasto publico, privatizaciones y defensa de las instituciones tradicionales."
+        "propuesta": "Enfoque de seguridad estricta, libre mercado, reduccion drastica del gasto publico, privatizaciones y defense de las instituciones tradicionales."
     },
     {
         "col": col2, "nombre": "Ivan Cepeda", "partido": "Pacto Historico / Izquierda", "foto": "cepeda.jpg",
@@ -195,50 +195,54 @@ for cand in candidatos:
 st.write("---")
 
 # ==========================================
-# 6. SISTEMA DE CHAT CON FILTROS ABIERTOS
+# 6. SISTEMA DE CHAT REESTRUCTURADO
 # ==========================================
 st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Muestra el historial completo guardado de forma persistente
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if user_prompt := st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Fajardo..."):
+# Captura de la entrada del usuario de manera aislada
+user_prompt = st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Fajardo...")
+
+if user_prompt:
+    # 1. Renderizar e indexar inmediatamente el mensaje del usuario
     with st.chat_message("user"):
         st.markdown(user_prompt)
     st.session_state.messages.append({"role": "user", "content": user_prompt})
 
+    # 2. Generar la respuesta de la API de manera secuencial y segura
     if GOOGLE_API_KEY:
-        # Contexto plano con los datos del programa para alimentar la respuesta
         contexto_datos = (
-            f"Contexto programatico:\n"
+            f"Contexto programatico colombiano:\n"
             f"- Abelardo de la Espriella: {candidatos[0]['propuesta']}\n"
             f"- Ivan Cepeda: {candidatos[1]['propuesta']}\n"
             f"- Paloma Valencia: {candidatos[2]['propuesta']}\n"
             f"- Sergio Fajardo: {candidatos[3]['propuesta']}\n\n"
-            f"Pregunta a responder de manera objetiva: {user_prompt}"
+            f"Pregunta del ciudadano: {user_prompt}"
         )
         
-        with st.spinner("Pensando respuesta neutral..."):
-            try:
-                # Ejecutamos con timeout y manejo explícito de respuesta
-                response = model.generate_content(
-                    contexto_datos,
-                    request_options={"timeout": 15.0}
-                )
-                
-                # Verificación estricta del estado de finalización de la respuesta
-                if response and hasattr(response, 'text') and response.text:
-                    bot_response = response.text
-                    st.session_state.messages.append({"role": "assistant", "content": bot_response})
-                    st.rerun()
-                else:
-                    st.warning("Google proceso la solicitud pero bloqueó el contenido por políticas internas de la API Key.")
-            except Exception as e:
-                st.error(f"Error de conexion o tiempo de espera agotado con la API: {e}")
+        with st.chat_message("assistant"):
+            with st.spinner("Pensando respuesta neutral..."):
+                try:
+                    response = model.generate_content(
+                        contexto_datos,
+                        request_options={"timeout": 15.0}
+                    )
+                    
+                    if response and hasattr(response, 'text') and response.text:
+                        bot_response = response.text
+                        st.markdown(bot_response)
+                        st.session_state.messages.append({"role": "assistant", "content": bot_response})
+                    else:
+                        st.warning("No se pudo generar una respuesta. Verifica los limites de tu cuota de la API Key.")
+                except Exception as e:
+                    st.error(f"Fallo en el backend de la API: {e}")
     else:
         st.warning("Falta la API Key para procesar tu consulta.")
 
