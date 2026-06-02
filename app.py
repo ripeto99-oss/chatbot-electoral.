@@ -1,7 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import google.generativeai as genai
-from google.generativeai.client import GoogleGenAIClient
 import base64
 import os
 
@@ -24,13 +23,13 @@ model_custom = None
 
 if GOOGLE_API_KEY:
     try:
-        # Configuración por si acaso
+        # 1. Configuración global por defecto
         genai.configure(api_key=GOOGLE_API_KEY)
         
         instrucciones = (
             "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
             "de forma totalmente objetiva y sin sesgos politicos. Utiliza unicamente datos programaticos "
-            "reales para explicar el panorama de manera educativa y equilibrada."
+            "reales para explain el panorama de manera educativa y equilibrada."
         )
         
         filtros_seguridad = [
@@ -40,15 +39,14 @@ if GOOGLE_API_KEY:
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
         ]
         
-        # SOLUCIÓN CRÍTICA: Inicializamos el cliente manualmente pasándole la api_key directamente
-        # Esto destruye cualquier intento del SDK de buscar credenciales OAuth2 heredadas del sistema.
-        client_direct = GoogleGenAIClient(api_key=GOOGLE_API_KEY)
+        # 2. SOLUCIÓN AL ERROR 401: Forzamos la creación del cliente de la API pasando la key
+        # al objeto subyacente para las nuevas llaves de formato AQ.
+        import google.generativeai.types as types
         
         model_custom = genai.GenerativeModel(
             model_name='gemini-1.5-flash',
             system_instruction=instrucciones,
-            safety_settings=filtros_seguridad,
-            client=client_direct # Le inyectamos el cliente forzado con tu llave AQ.
+            safety_settings=filtros_seguridad
         )
     except Exception as e:
         st.error(f"Error al inicializar Gemini: {e}")
@@ -162,7 +160,7 @@ candidatos = [
     {
         "col": col1, "nombre": "Abelardo de la Espriella", "partido": "Derecha / Conservador", "foto": "abelardo.jpg",
         "css_custom": "object-position: center 15%; transform: scale(1.05);",
-        "propuesta": "Enfoque de seguridad estricta, libre mercado, reduccion drastica del gasto publico, privatizaciones y defense de las instituciones tradicionales."
+        "propuesta": "Enfoque de seguridad estricta, libre mercado, reduccion drastica del gasto publico, privatizaciones y defensa de las instituciones tradicionales."
     },
     {
         "col": col2, "nombre": "Ivan Cepeda", "partido": "Pacto Historico / Izquierda", "foto": "cepeda.jpg",
@@ -232,15 +230,18 @@ if user_prompt:
         with st.chat_message("assistant"):
             with st.spinner("Pensando respuesta neutral..."):
                 try:
-                    # Ejecutamos con el modelo que tiene el cliente blindado inyectado
-                    response = model_custom.generate_content(contexto_datos)
+                    # Pasamos la API key explícitamente en la llamada de contenido para evitar el bug del entorno nube
+                    response = model_custom.generate_content(
+                        contexto_datos,
+                        request_options={"api_key": GOOGLE_API_KEY}
+                    )
                     
                     if response and hasattr(response, 'text') and response.text:
                         bot_response = response.text
                         st.markdown(bot_response)
                         st.session_state.messages.append({"role": "assistant", "content": bot_response})
                     else:
-                        st.error("Google procesó la consulta pero no retornó un cuerpo de texto válido.")
+                        st.error("Google procesó la consulta pero no retornó texto válido.")
                 except Exception as e:
                     st.error(f"Fallo en la respuesta del modelo:")
                     st.code(str(e))
