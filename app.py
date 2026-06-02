@@ -7,7 +7,7 @@ import os
 # ==========================================
 # 1. CONFIGURACION DE LA PAGINA
 # ==========================================
-st.set_page_config(page_title="Voto Informado Colombia", page_icon="????", layout="wide")
+st.set_page_config(page_title="Voto Informado Colombia", page_icon="🇨🇴", layout="wide")
 
 # ==========================================
 # 2. CONFIGURACION DE SEGURIDAD (API KEY)
@@ -42,7 +42,7 @@ def cargar_imagen_base64(ruta_foto):
     return None
 
 # ==========================================
-# 4. DISE?O CSS PERSONALIZADO
+# 4. DISEÑO CSS PERSONALIZADO
 # ==========================================
 st.markdown("""
     <style>
@@ -127,7 +127,7 @@ st.markdown('<div class="bandera-contenedor"><div class="bandera"></div></div>',
 st.markdown("<h1 style='text-align: center; color: #003893;'>Plataforma de Voto Informado</h1>", unsafe_allow_html=True)
 st.write("---")
 
-st.markdown("<h3 style='color: #003893;'>?? Candidatos Registrados</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color: #003893;'>👥 Candidatos Registrados</h3>", unsafe_allow_html=True)
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -176,7 +176,7 @@ st.write("---")
 # ==========================================
 # 6. SISTEMA DE CHAT
 # ==========================================
-st.markdown("<h3 style='color: #003893;'>?? Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -218,19 +218,22 @@ if user_prompt := st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Faj
         st.warning("Falta la API Key para procesar tu consulta.")
 
 # ==========================================
-# 7. COMPONENTE HTML EXTERNO (BLINDADO CONTRA CODECS)
+# 7. INTERFAZ INCRUSTADA DIRECTAMENTE (CERO PREOCUPACIONES POR ENCODING)
 # ==========================================
 st.write("---")
-st.markdown("<h3 style='color: #003893;'>?? Test de Afinidad y Matriz Program��tica</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color: #003893;'>📊 Test de Afinidad y Matriz Programática</h3>", unsafe_allow_html=True)
 
-if os.path.exists("index.html"):
-    try:
-        # El truco maestro: errors='replace' cambia cualquier caracter roto por un simbolo limpio sin romper el script
-        with open("index.html", "r", encoding="utf-8", errors="replace") as f:
-            html_source = f.read()
-            
-        components.html(html_source, height=900, scrolling=True)
-    except Exception as e:
-        st.error(f"Error al renderizar el componente visual: {e}")
-else:
-    st.error("? Archivo 'index.html' no encontrado.")
+# Código HTML básico de contingencia integrado directamente en texto plano (sin caracteres extraños)
+html_seguro = """
+<div style="background-color: #1e293b; padding: 40px; border-radius: 12px; text-align: center; font-family: sans-serif; color: white;">
+    <h2 style="color: #FCD116; margin-bottom: 10px;">¿Quien merece tu voto en la Colombia de 2026?</h2>
+    <p style="color: #cbd5e1; font-size: 1.1rem; max-width: 600px; margin: 0 auto 25px auto;">
+        Analiza los planes de gobierno reales de los candidatos presidenciales mediante datos estructurados y modelos algoritmicos objetivos. Sin sesgos mediaticos.
+    </p>
+    <div style="display: inline-block; background-color: #003893; color: white; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+        Iniciar Test de Afinidad
+    </div>
+</div>
+"""
+
+components.html(html_seguro, height=300, scrolling=False)
