@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import google.generativeai as genai
+from google.generativeai.client import GoogleGenAIClient
 import base64
 import os
 
@@ -19,19 +20,19 @@ elif "GEMINI_API_KEY" in os.environ:
 else:
     GOOGLE_API_KEY = None
 
+model_custom = None
+
 if GOOGLE_API_KEY:
     try:
-        # Forzamos la configuración de la API Key en la raíz del paquete
+        # Configuración por si acaso
         genai.configure(api_key=GOOGLE_API_KEY)
         
-        # Instrucción de sistema fija para garantizar respuestas neutrales
         instrucciones = (
             "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
             "de forma totalmente objetiva y sin sesgos politicos. Utiliza unicamente datos programaticos "
             "reales para explicar el panorama de manera educativa y equilibrada."
         )
         
-        # Desactivamos bloqueos por temáticas políticas sensibles
         filtros_seguridad = [
             {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
             {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -39,11 +40,15 @@ if GOOGLE_API_KEY:
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
         ]
         
-        # Inicialización del modelo estándar
-        model = genai.GenerativeModel(
+        # SOLUCIÓN CRÍTICA: Inicializamos el cliente manualmente pasándole la api_key directamente
+        # Esto destruye cualquier intento del SDK de buscar credenciales OAuth2 heredadas del sistema.
+        client_direct = GoogleGenAIClient(api_key=GOOGLE_API_KEY)
+        
+        model_custom = genai.GenerativeModel(
             model_name='gemini-1.5-flash',
             system_instruction=instrucciones,
-            safety_settings=filtros_seguridad
+            safety_settings=filtros_seguridad,
+            client=client_direct # Le inyectamos el cliente forzado con tu llave AQ.
         )
     except Exception as e:
         st.error(f"Error al inicializar Gemini: {e}")
@@ -157,7 +162,7 @@ candidatos = [
     {
         "col": col1, "nombre": "Abelardo de la Espriella", "partido": "Derecha / Conservador", "foto": "abelardo.jpg",
         "css_custom": "object-position: center 15%; transform: scale(1.05);",
-        "propuesta": "Enfoque de seguridad estricta, libre mercado, reduccion drastica del gasto publico, privatizaciones y defensa de las instituciones tradicionales."
+        "propuesta": "Enfoque de seguridad estricta, libre mercado, reduccion drastica del gasto publico, privatizaciones y defense de las instituciones tradicionales."
     },
     {
         "col": col2, "nombre": "Ivan Cepeda", "partido": "Pacto Historico / Izquierda", "foto": "cepeda.jpg",
@@ -203,21 +208,18 @@ st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Desplegamos de forma limpia el historial acumulado
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Entrada de texto del usuario
 user_prompt = st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Fajardo...")
 
 if user_prompt:
-    # Dibujamos y guardamos la pregunta inmediatamente
     with st.chat_message("user"):
         st.markdown(user_prompt)
     st.session_state.messages.append({"role": "user", "content": user_prompt})
 
-    if GOOGLE_API_KEY:
+    if model_custom:
         contexto_datos = (
             f"Contexto programatico colombiano:\n"
             f"- Abelardo de la Espriella: {candidatos[0]['propuesta']}\n"
@@ -227,25 +229,23 @@ if user_prompt:
             f"Pregunta del ciudadano: {user_prompt}"
         )
         
-        # Procesamos la caja del bot de forma directa
         with st.chat_message("assistant"):
             with st.spinner("Pensando respuesta neutral..."):
                 try:
-                    # Llamada limpia nativa compatible con las nuevas llaves AQ.
-                    response = model.generate_content(contexto_datos)
+                    # Ejecutamos con el modelo que tiene el cliente blindado inyectado
+                    response = model_custom.generate_content(contexto_datos)
                     
                     if response and hasattr(response, 'text') and response.text:
                         bot_response = response.text
                         st.markdown(bot_response)
                         st.session_state.messages.append({"role": "assistant", "content": bot_response})
                     else:
-                        st.error("Google proceso la consulta pero no retorno un cuerpo de texto válido.")
+                        st.error("Google procesó la consulta pero no retornó un cuerpo de texto válido.")
                 except Exception as e:
-                    # Cuadro de diagnóstico directo en caso de error
                     st.error(f"Fallo en la respuesta del modelo:")
                     st.code(str(e))
     else:
-        st.warning("No se puede conectar con el asistente porque falta la API Key en los Secrets.")
+        st.warning("No se puede conectar con el asistente porque el modelo no se inicializo correctamente.")
 
 # ==========================================
 # 7. INTERFAZ INCRUSTADA
