@@ -10,7 +10,7 @@ import os
 st.set_page_config(page_title="Voto Informado Colombia", page_icon="🇨🇴", layout="wide")
 
 # ==========================================
-# 2. CONFIGURACION DE SEGURIDAD (API KEY)
+# 2. CONFIGURACION DE SEGURIDAD Y MODELO
 # ==========================================
 if "GEMINI_API_KEY" in st.secrets:
     GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -22,7 +22,28 @@ else:
 if GOOGLE_API_KEY:
     try:
         genai.configure(api_key=GOOGLE_API_KEY)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        # Definimos las instrucciones de comportamiento fijas del sistema de forma limpia
+        instrucciones = (
+            "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
+            "de forma totalmente objetiva y sin sesgos políticos. Utiliza únicamente datos programáticos "
+            "reales para explicar el panorama de manera educativa y equilibrada."
+        )
+        
+        # Desactivamos los bloqueos automáticos por temáticas políticas sensibles
+        filtros_seguridad = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+        ]
+        
+        # Inicializamos el modelo con la configuración avanzada
+        model = genai.GenerativeModel(
+            model_name='gemini-1.5-flash',
+            system_instruction=instrucciones,
+            safety_settings=filtros_seguridad
+        )
     except Exception as e:
         st.error(f"Error al inicializar Gemini: {e}")
 else:
@@ -174,7 +195,7 @@ for cand in candidatos:
 st.write("---")
 
 # ==========================================
-# 6. SISTEMA DE CHAT
+# 6. SISTEMA DE CHAT CON FILTROS ABIERTOS
 # ==========================================
 st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
 
@@ -191,39 +212,42 @@ if user_prompt := st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Faj
     st.session_state.messages.append({"role": "user", "content": user_prompt})
 
     if GOOGLE_API_KEY:
-        contexto_sistema = (
-            "Eres un analista electoral neutral para Colombia. Responde de forma objetiva usando exclusivamente "
-            f"estas propuestas reales: Abelardo ({candidatos[0]['propuesta']}), Cepeda ({candidatos[1]['propuesta']}), "
-            f"Paloma ({candidatos[2]['propuesta']}), Fajardo ({candidatos[3]['propuesta']}). "
-            "Contesta la pregunta del usuario sin tomar partido."
+        # Contexto plano con los datos del programa para alimentar la respuesta
+        contexto_datos = (
+            f"Contexto programatico:\n"
+            f"- Abelardo de la Espriella: {candidatos[0]['propuesta']}\n"
+            f"- Ivan Cepeda: {candidatos[1]['propuesta']}\n"
+            f"- Paloma Valencia: {candidatos[2]['propuesta']}\n"
+            f"- Sergio Fajardo: {candidatos[3]['propuesta']}\n\n"
+            f"Pregunta a responder de manera objetiva: {user_prompt}"
         )
         
         with st.spinner("Pensando respuesta neutral..."):
             try:
-                prompt_final = f"{contexto_sistema}\n\nPregunta del usuario: {user_prompt}"
+                # Ejecutamos con timeout y manejo explícito de respuesta
                 response = model.generate_content(
-                    prompt_final,
-                    request_options={"timeout": 12.0}
+                    contexto_datos,
+                    request_options={"timeout": 15.0}
                 )
                 
-                if response and response.text:
+                # Verificación estricta del estado de finalización de la respuesta
+                if response and hasattr(response, 'text') and response.text:
                     bot_response = response.text
                     st.session_state.messages.append({"role": "assistant", "content": bot_response})
                     st.rerun()
                 else:
-                    st.error("La API devolvio una respuesta vacia. Intenta de nuevo.")
+                    st.warning("Google proceso la solicitud pero bloqueó el contenido por políticas internas de la API Key.")
             except Exception as e:
-                st.error(f"La conexion con Gemini fallo o tardo demasiado: {e}")
+                st.error(f"Error de conexion o tiempo de espera agotado con la API: {e}")
     else:
         st.warning("Falta la API Key para procesar tu consulta.")
 
 # ==========================================
-# 7. INTERFAZ INCRUSTADA DIRECTAMENTE (CERO PREOCUPACIONES POR ENCODING)
+# 7. INTERFAZ INCRUSTADA
 # ==========================================
 st.write("---")
 st.markdown("<h3 style='color: #003893;'>📊 Test de Afinidad y Matriz Programática</h3>", unsafe_allow_html=True)
 
-# Código HTML básico de contingencia integrado directamente en texto plano (sin caracteres extraños)
 html_seguro = """
 <div style="background-color: #1e293b; padding: 40px; border-radius: 12px; text-align: center; font-family: sans-serif; color: white;">
     <h2 style="color: #FCD116; margin-bottom: 10px;">¿Quien merece tu voto en la Colombia de 2026?</h2>
