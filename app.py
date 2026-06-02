@@ -23,13 +23,13 @@ model_custom = None
 
 if GOOGLE_API_KEY:
     try:
-        # 1. Configuración global por defecto
+        # Configuración global inicial
         genai.configure(api_key=GOOGLE_API_KEY)
         
         instrucciones = (
             "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
             "de forma totalmente objetiva y sin sesgos politicos. Utiliza unicamente datos programaticos "
-            "reales para explain el panorama de manera educativa y equilibrada."
+            "reales para explicar el panorama de manera educativa y equilibrada."
         )
         
         filtros_seguridad = [
@@ -38,10 +38,6 @@ if GOOGLE_API_KEY:
             {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
         ]
-        
-        # 2. SOLUCIÓN AL ERROR 401: Forzamos la creación del cliente de la API pasando la key
-        # al objeto subyacente para las nuevas llaves de formato AQ.
-        import google.generativeai.types as types
         
         model_custom = genai.GenerativeModel(
             model_name='gemini-1.5-flash',
@@ -230,10 +226,12 @@ if user_prompt:
         with st.chat_message("assistant"):
             with st.spinner("Pensando respuesta neutral..."):
                 try:
-                    # Pasamos la API key explícitamente en la llamada de contenido para evitar el bug del entorno nube
+                    # CORRECCIÓN DEFINITIVA: Formateamos de manera correcta la api_key como exige el core de Google
+                    config_cliente = {"api_key": GOOGLE_API_KEY}
+                    
                     response = model_custom.generate_content(
                         contexto_datos,
-                        request_options={"api_key": GOOGLE_API_KEY}
+                        request_options=config_cliente
                     )
                     
                     if response and hasattr(response, 'text') and response.text:
