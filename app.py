@@ -1,7 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import google.generativeai as genai
-from google.generativeai.types import SafetySetting, HarmCategory, HarmBlockThreshold
 import base64
 import os
 
@@ -24,19 +23,19 @@ if GOOGLE_API_KEY:
     try:
         genai.configure(api_key=GOOGLE_API_KEY)
         
-        # Comportamiento fijo del sistema de forma limpia
+        # Comportamiento fijo del sistema para garantizar la neutralidad electoral
         instrucciones = (
             "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
             "de forma totalmente objetiva y sin sesgos politicos. Utiliza unicamente datos programaticos "
             "reales para explicar el panorama de manera educativa y equilibrada."
         )
         
-        # Estructura nativa y segura para desactivar bloqueos automaticos por temas politicos
+        # Filtros de seguridad con las strings nativas que acepta la API sin romper la importacion
         filtros_seguridad = [
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE),
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=HarmBlockThreshold.BLOCK_NONE),
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
         ]
         
         model = genai.GenerativeModel(
@@ -156,7 +155,7 @@ candidatos = [
     {
         "col": col1, "nombre": "Abelardo de la Espriella", "partido": "Derecha / Conservador", "foto": "abelardo.jpg",
         "css_custom": "object-position: center 15%; transform: scale(1.05);",
-        "propuesta": "Enfoque de seguridad estricta, libre mercado, reduccion drastica del gasto publico, privatizaciones y defense de las instituciones tradicionales."
+        "propuesta": "Enfoque de seguridad estricta, libre mercado, reduccion drastica del gasto publico, privatizaciones y defensa de las instituciones tradicionales."
     },
     {
         "col": col2, "nombre": "Ivan Cepeda", "partido": "Pacto Historico / Izquierda", "foto": "cepeda.jpg",
@@ -195,28 +194,27 @@ for cand in candidatos:
 st.write("---")
 
 # ==========================================
-# 6. SISTEMA DE CHAT REESTRUCTURADO
+# 6. SISTEMA DE CHAT SECUENCIAL
 # ==========================================
 st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Muestra el historial completo guardado de forma persistente
+# Mostramos el historial guardado en la sesión
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Captura de la entrada del usuario de manera aislada
+# Captura de datos limpia y sin bucles de refresco
 user_prompt = st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Fajardo...")
 
 if user_prompt:
-    # 1. Renderizar e indexar inmediatamente el mensaje del usuario
+    # Mostramos y guardamos el mensaje del usuario inmediatamente
     with st.chat_message("user"):
         st.markdown(user_prompt)
     st.session_state.messages.append({"role": "user", "content": user_prompt})
 
-    # 2. Generar la respuesta de la API de manera secuencial y segura
     if GOOGLE_API_KEY:
         contexto_datos = (
             f"Contexto programatico colombiano:\n"
@@ -227,6 +225,7 @@ if user_prompt:
             f"Pregunta del ciudadano: {user_prompt}"
         )
         
+        # Generamos la respuesta directamente en su caja correspondiente
         with st.chat_message("assistant"):
             with st.spinner("Pensando respuesta neutral..."):
                 try:
@@ -240,9 +239,9 @@ if user_prompt:
                         st.markdown(bot_response)
                         st.session_state.messages.append({"role": "assistant", "content": bot_response})
                     else:
-                        st.warning("No se pudo generar una respuesta. Verifica los limites de tu cuota de la API Key.")
+                        st.warning("La API de Google no devolvio texto. Puede deberse a limites de cuota de la llave.")
                 except Exception as e:
-                    st.error(f"Fallo en el backend de la API: {e}")
+                    st.error(f"Fallo en la respuesta del modelo: {e}")
     else:
         st.warning("Falta la API Key para procesar tu consulta.")
 
