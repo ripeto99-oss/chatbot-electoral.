@@ -51,10 +51,10 @@ st.markdown('<div class="bandera-contenedor"><div class="bandera"></div></div>',
 st.markdown("<h1 style='text-align: center; color: #003893;'>Plataforma de Voto Informado</h1>", unsafe_allow_html=True)
 
 candidatos = [
-    {"nombre": "Abelardo de la Espriella", "partido": "Derecha", "foto": "abelardo.jpg", "propuesta": "Enfoque de seguridad estricta, libre mercado, reducción drástica del gasto público y defensa de instituciones tradicionales."},
-    {"nombre": "Ivan Cepeda", "partido": "Izquierda", "foto": "cepeda.jpg", "propuesta": "Justicia social, reformas estructurales profundas al sistema de salud y pensiones, modelo de paz total y enfoque en derechos humanos."},
-    {"nombre": "Paloma Valencia", "partido": "Derecha", "foto": "paloma.png", "propuesta": "Reforma integral a la justicia, incentivos al sector agrícola nacional, doctrina de seguridad democrática y oposición firme a reformas de izquierda."},
-    {"nombre": "Sergio Fajardo", "partido": "Centro", "foto": "fajardo.jpg", "propuesta": "La educación y las regiones como motores del desarrollo nacional, transparencia en contratación pública y fomento de innovación tecnológica."}
+    {"nombre": "Abelardo de la Espriella", "partido": "Derecha / Conservador", "foto": "abelardo.jpg", "propuesta": "Enfoque de seguridad estricta, libre mercado, reducción drástica del gasto público, privatizaciones y defensa de las instituciones tradicionales."},
+    {"nombre": "Ivan Cepeda", "partido": "Pacto Histórico / Izquierda", "foto": "cepeda.jpg", "propuesta": "Justicia social, reformas estructurales profundas al sistema de salud y pensiones, modelo de paz total, transición ambiental y enfoque en derechos humanos."},
+    {"nombre": "Paloma Valencia", "partido": "Centro Democrático / Derecha", "foto": "paloma.png", "propuesta": "Reforma integral a la justicia, incentivos y créditos para el sector agrícola nacional, doctrina de seguridad democrática y oposición firme a las reformas estatales de izquierda."},
+    {"nombre": "Sergio Fajardo", "partido": "Centro / Dignidad y Compromiso", "foto": "fajardo.jpg", "propuesta": "La educación y las regiones como motores principales del desarrollo nacional, transparencia absoluta en la contratación pública y fomento de la innovación tecnológica y científica."}
 ]
 
 cols = st.columns(4)
@@ -66,7 +66,7 @@ for i, cand in enumerate(candidatos):
             <div class="tarjeta-candidato-unica">
                 <div class="contenedor-rostro">{img_html}</div>
                 <div class="titulo-candidato">{cand['nombre']}</div>
-                <p><b>Linea:</b> {cand['partido']}</p>
+                <p><b>Línea/Partido:</b><br>{cand['partido']}</p>
                 <p class="propuesta-candidato"><i>Enfoque:</i> {cand['propuesta']}</p>
             </div>
         """, unsafe_allow_html=True)
@@ -76,11 +76,11 @@ st.write("---")
 # ==========================================
 # 6. CHAT Y HTML FINAL
 # ==========================================
-st.markdown("<h3 style='color: #003893;'>💬 Asistente Electoral</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
 if "messages" not in st.session_state: st.session_state.messages = []
 for m in st.session_state.messages: st.chat_message(m["role"]).markdown(m["content"])
 
-if user_prompt := st.chat_input("Preguntame sobre los candidatos..."):
+if user_prompt := st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Fajardo..."):
     st.chat_message("user").markdown(user_prompt)
     st.session_state.messages.append({"role": "user", "content": user_prompt})
     
@@ -98,6 +98,6 @@ if user_prompt := st.chat_input("Preguntame sobre los candidatos..."):
 
 components.html("""<div style="background-color: #1e293b; padding: 40px; border-radius: 12px; text-align: center; color: white;">
     <h2 style="color: #FCD116;">¿Quien merece tu voto en la Colombia de 2026?</h2>
-    <p>Analiza los planes de gobierno reales de forma objetiva.</p>
-    <div style="background-color: #003893; padding: 12px; border-radius: 6px; font-weight: bold;">Iniciar Test</div>
+    <p>Analiza los planes de gobierno reales mediante datos estructurados y modelos algoritmicos objetivos.</p>
+    <div style="background-color: #003893; padding: 12px; border-radius: 6px; font-weight: bold;">Iniciar Test de Afinidad</div>
 </div>""", height=300)
