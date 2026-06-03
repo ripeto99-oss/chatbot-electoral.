@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import google.generativeai as genai
+import requests
 import base64
 import os
 
@@ -10,7 +10,7 @@ import os
 st.set_page_config(page_title="Voto Informado Colombia", page_icon="🇨🇴", layout="wide")
 
 # ==========================================
-# 2. CONFIGURACION DE SEGURIDAD Y MODELO
+# 2. CONFIGURACION DE SEGURIDAD Y LLAVE
 # ==========================================
 if "GEMINI_API_KEY" in st.secrets:
     GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -19,35 +19,11 @@ elif "GEMINI_API_KEY" in os.environ:
 else:
     GOOGLE_API_KEY = None
 
-model_custom = None
-
-if GOOGLE_API_KEY:
-    try:
-        # Configuración global inicial
-        genai.configure(api_key=GOOGLE_API_KEY)
-        
-        instrucciones = (
-            "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
-            "de forma totalmente objetiva y sin sesgos politicos. Utiliza unicamente datos programaticos "
-            "reales para explicar el panorama de manera educativa y equilibrada."
-        )
-        
-        filtros_seguridad = [
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
-        ]
-        
-        model_custom = genai.GenerativeModel(
-            model_name='gemini-1.5-flash',
-            system_instruction=instrucciones,
-            safety_settings=filtros_seguridad
-        )
-    except Exception as e:
-        st.error(f"Error al inicializar Gemini: {e}")
-else:
-    st.error("Configuracion incompleta: No se encontro la variable GEMINI_API_KEY en Secrets.")
+SYSTEM_INSTRUCTION = (
+    "Eres un analista electoral neutral para Colombia. Tu objetivo es responder consultas "
+    "de forma totalmente objetiva y sin sesgos politicos. Utiliza unicamente datos programaticos "
+    "reales para explicar el panorama de manera educativa y equilibrada."
+)
 
 # ==========================================
 # 3. CACHE DE IMAGENES
@@ -195,7 +171,7 @@ for cand in candidatos:
 st.write("---")
 
 # ==========================================
-# 6. SISTEMA DE CHAT SECUENCIAL
+# 6. CHAT POR REQUESTS DIRECTO (SOPORTA AQ O CUALQUIERA)
 # ==========================================
 st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
 
@@ -213,7 +189,7 @@ if user_prompt:
         st.markdown(user_prompt)
     st.session_state.messages.append({"role": "user", "content": user_prompt})
 
-    if model_custom:
+    if GOOGLE_API_KEY:
         contexto_datos = (
             f"Contexto programatico colombiano:\n"
             f"- Abelardo de la Espriella: {candidatos[0]['propuesta']}\n"
@@ -226,25 +202,41 @@ if user_prompt:
         with st.chat_message("assistant"):
             with st.spinner("Pensando respuesta neutral..."):
                 try:
-                    # CORRECCIÓN DEFINITIVA: Formateamos de manera correcta la api_key como exige el core de Google
-                    config_cliente = {"api_key": GOOGLE_API_KEY}
+                    # Endpoint REST directo. Al meter la llave en la URL, Google la procesa sin importar el formato
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GOOGLE_API_KEY}"
+                    headers = {"Content-Type": "application/json"}
                     
-                    response = model_custom.generate_content(
-                        contexto_datos,
-                        request_options=config_cliente
-                    )
+                    payload = {
+                        "contents": [
+                            {
+                                "parts": [
+                                    {"text": contexto_datos}
+                                ]
+                            }
+                        ],
+                        "systemInstruction": {
+                            "parts": [
+                                {"text": SYSTEM_INSTRUCTION}
+                            ]
+                        }
+                    }
                     
-                    if response and hasattr(response, 'text') and response.text:
-                        bot_response = response.text
+                    response = requests.post(url, headers=headers, json=payload)
+                    res_data = response.json()
+                    
+                    if response.status_code == 200:
+                        bot_response = res_data['candidates'][0]['content']['parts'][0]['text']
                         st.markdown(bot_response)
                         st.session_state.messages.append({"role": "assistant", "content": bot_response})
                     else:
-                        st.error("Google procesó la consulta pero no retornó texto válido.")
+                        st.error(f"Error de autenticación o respuesta de Google (Código {response.status_code}):")
+                        st.json(res_data)
+                        
                 except Exception as e:
-                    st.error(f"Fallo en la respuesta del modelo:")
+                    st.error(f"Error en la conexión HTTP:")
                     st.code(str(e))
     else:
-        st.warning("No se puede conectar con el asistente porque el modelo no se inicializo correctamente.")
+        st.warning("No se encontró la llave GEMINI_API_KEY en los Secrets.")
 
 # ==========================================
 # 7. INTERFAZ INCRUSTADA
