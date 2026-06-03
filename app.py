@@ -81,33 +81,27 @@ st.write("---")
 # ==========================================
 st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
 
-# Inicializar memoria del chat
 if "messages" not in st.session_state: 
     st.session_state.messages = []
 
-# Mostrar historial
 for m in st.session_state.messages: 
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
 
-# Capturar pregunta del usuario
 if user_prompt := st.chat_input("Pregúntame sobre los candidatos..."):
     
-    # Mostrar y guardar mensaje del usuario
     with st.chat_message("user"):
         st.markdown(user_prompt)
     st.session_state.messages.append({"role": "user", "content": user_prompt})
     
-    # Procesar respuesta de la IA
     if GOOGLE_API_KEY:
         with st.chat_message("assistant"):
             with st.spinner("Analizando la consulta..."):
                 try:
-                    # Envolvemos la instrucción del sistema y la pregunta para evitar el error 400
-                    texto_final = f"{SYSTEM_INSTRUCTION}\\n\\nPregunta del usuario: {user_prompt}"
+                    texto_final = f"{SYSTEM_INSTRUCTION}\n\nPregunta del usuario: {user_prompt}"
                     
-                    # Llamada a la API estable v1
-                    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={GOOGLE_API_KEY}"
+                    # CAMBIO CLAVE: Usamos v1beta para evitar el error 404 del modelo
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GOOGLE_API_KEY}"
                     
                     payload = {
                         "contents": [
