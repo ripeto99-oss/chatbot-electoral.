@@ -10,7 +10,7 @@ import os
 st.set_page_config(page_title="Voto Informado Colombia", page_icon="🇨🇴", layout="wide")
 
 # ==========================================
-# 2. CONFIGURACION
+# 2. CONFIGURACION Y LLAVES
 # ==========================================
 GOOGLE_API_KEY = st.secrets.get("GEMINI_API_KEY")
 SYSTEM_INSTRUCTION = (
@@ -20,17 +20,20 @@ SYSTEM_INSTRUCTION = (
 )
 
 # ==========================================
-# 3. FUNCIONES
+# 3. FUNCIONES AUXILIARES
 # ==========================================
 @st.cache_data(show_spinner=False)
 def cargar_imagen_base64(ruta_foto):
     if os.path.exists(ruta_foto):
-        with open(ruta_foto, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode()
+        try:
+            with open(ruta_foto, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode()
+        except Exception:
+            return None
     return None
 
 # ==========================================
-# 4. ESTILOS CSS
+# 4. DISEÑO CSS
 # ==========================================
 st.markdown("""
     <style>
@@ -45,7 +48,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 5. UI PRINCIPAL
+# 5. INTERFAZ DE CANDIDATOS
 # ==========================================
 st.markdown('<div class="bandera-contenedor"><div class="bandera"></div></div>', unsafe_allow_html=True)
 st.markdown("<h1 style='text-align: center; color: #003893;'>Plataforma de Voto Informado</h1>", unsafe_allow_html=True)
@@ -74,30 +77,76 @@ for i, cand in enumerate(candidatos):
 st.write("---")
 
 # ==========================================
-# 6. CHAT Y HTML FINAL
+# 6. CHATBOT E INTEGRACIÓN IA
 # ==========================================
 st.markdown("<h3 style='color: #003893;'>💬 Consulta al Asistente Electoral</h3>", unsafe_allow_html=True)
-if "messages" not in st.session_state: st.session_state.messages = []
-for m in st.session_state.messages: st.chat_message(m["role"]).markdown(m["content"])
 
-if user_prompt := st.chat_input("Preguntame sobre Abelardo, Cepeda, Paloma o Fajardo..."):
-    st.chat_message("user").markdown(user_prompt)
+# Inicializar memoria del chat
+if "messages" not in st.session_state: 
+    st.session_state.messages = []
+
+# Mostrar historial
+for m in st.session_state.messages: 
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
+
+# Capturar pregunta del usuario
+if user_prompt := st.chat_input("Pregúntame sobre los candidatos..."):
+    
+    # Mostrar y guardar mensaje del usuario
+    with st.chat_message("user"):
+        st.markdown(user_prompt)
     st.session_state.messages.append({"role": "user", "content": user_prompt})
     
+    # Procesar respuesta de la IA
     if GOOGLE_API_KEY:
         with st.chat_message("assistant"):
-            try:
-                p_final = f"{SYSTEM_INSTRUCTION}\n\nPregunta: {user_prompt}"
-                url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={GOOGLE_API_KEY}"
-                r = requests.post(url, json={"contents": [{"parts": [{"text": p_final}]}]})
-                if r.status_code == 200:
-                    resp = r.json()['candidates'][0]['content']['parts'][0]['text']
-                    st.markdown(resp)
-                    st.session_state.messages.append({"role": "assistant", "content": resp})
-            except Exception as e: st.error(f"Error: {e}")
+            with st.spinner("Analizando la consulta..."):
+                try:
+                    # Envolvemos la instrucción del sistema y la pregunta para evitar el error 400
+                    texto_final = f"{SYSTEM_INSTRUCTION}\\n\\nPregunta del usuario: {user_prompt}"
+                    
+                    # Llamada a la API estable v1
+                    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={GOOGLE_API_KEY}"
+                    
+                    payload = {
+                        "contents": [
+                            {
+                                "parts": [
+                                    {"text": texto_final}
+                                ]
+                            }
+                        ]
+                    }
+                    
+                    respuesta = requests.post(url, json=payload)
+                    
+                    if respuesta.status_code == 200:
+                        datos_json = respuesta.json()
+                        texto_ia = datos_json['candidates'][0]['content']['parts'][0]['text']
+                        
+                        st.markdown(texto_ia)
+                        st.session_state.messages.append({"role": "assistant", "content": texto_ia})
+                    else:
+                        st.error(f"Error de conexión con Google: Código {respuesta.status_code}. Detalles: {respuesta.text}")
+                except Exception as e: 
+                    st.error(f"Error técnico interno: {e}")
+    else:
+        st.error("⚠️ Faltan las credenciales. Asegúrate de tener tu llave en los Secrets de Streamlit.")
 
-components.html("""<div style="background-color: #1e293b; padding: 40px; border-radius: 12px; text-align: center; color: white;">
-    <h2 style="color: #FCD116;">¿Quien merece tu voto en la Colombia de 2026?</h2>
-    <p>Analiza los planes de gobierno reales mediante datos estructurados y modelos algoritmicos objetivos.</p>
-    <div style="background-color: #003893; padding: 12px; border-radius: 6px; font-weight: bold;">Iniciar Test de Afinidad</div>
-</div>""", height=300)
+# ==========================================
+# 7. COMPONENTE HTML
+# ==========================================
+st.write("---")
+html_seguro = '''
+<div style="background-color: #1e293b; padding: 40px; border-radius: 12px; text-align: center; font-family: sans-serif; color: white;">
+    <h2 style="color: #FCD116; margin-bottom: 10px;">¿Quién merece tu voto en la Colombia de 2026?</h2>
+    <p style="color: #cbd5e1; font-size: 1.1rem; max-width: 600px; margin: 0 auto 25px auto;">
+        Analiza los planes de gobierno reales de los candidatos presidenciales mediante datos estructurados y modelos algorítmicos objetivos.
+    </p>
+    <div style="display: inline-block; background-color: #003893; color: white; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+        Iniciar Test de Afinidad
+    </div>
+</div>
+'''
+components.html(html_seguro, height=300, scrolling=False)
