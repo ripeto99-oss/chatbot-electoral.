@@ -101,3 +101,23 @@ if user_prompt:
                         st.error(f"Error {response.status_code}")
                 except Exception as e:
                     st.error(f"Error: {e}")
+
+# ==========================================
+# 6. COMPONENTE HTML PERSONALIZADO (Lo que faltaba)
+# ==========================================
+st.write("---")
+st.markdown("<h3 style='color: #003893;'>📊 Test de Afinidad y Matriz Programática</h3>", unsafe_allow_html=True)
+
+html_seguro = """
+<div style="background-color: #1e293b; padding: 40px; border-radius: 12px; text-align: center; font-family: sans-serif; color: white;">
+    <h2 style="color: #FCD116; margin-bottom: 10px;">¿Quien merece tu voto en la Colombia de 2026?</h2>
+    <p style="color: #cbd5e1; font-size: 1.1rem; max-width: 600px; margin: 0 auto 25px auto;">
+        Analiza los planes de gobierno reales de los candidatos presidenciales mediante datos estructurados y modelos algoritmicos objetivos.
+    </p>
+    <div style="display: inline-block; background-color: #003893; color: white; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+        Iniciar Test de Afinidad
+    </div>
+</div>
+"""
+
+components.html(html_seguro, height=300, scrolling=False)
