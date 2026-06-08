@@ -1,0 +1,15 @@
+# Ignorar carpetas temporales de Python
+__pycache__/
+*.pyc
+
+# Ignorar entornos virtuales (si llegas a crear uno localmente)
+venv/
+env/
+.venv/
+
+# Ignorar archivos ocultos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# NUNCA SUBIR VARIABLES DE ENTORNO (Como tu API Key de Gemini)
+.env
