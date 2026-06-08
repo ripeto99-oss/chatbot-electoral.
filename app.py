@@ -42,7 +42,9 @@ else:
 @app.get("/", response_class=HTMLResponse)
 async def serve_frontend(request: Request):
     """Sirve el index.html principal como SPA"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+    request=request, name="index.html", context={}
+)
 
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
