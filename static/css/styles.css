@@ -560,3 +560,31 @@ header {
         display: none !important;
     }
 }
+/* ==========================================
+   ESTILOS SEGUNDA VUELTA: POLARIZACIÓN
+   ========================================== */
+.polarization-container {
+    margin: 1.5rem 0;
+}
+
+.polarization-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.polarization-bar-bg {
+    width: 100%;
+    height: 1.5rem;
+    background-color: #ef4444; /* Fondo rojo (Espriella) */
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+}
+
+.polarization-bar-fill {
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+    /* El azul (Cepeda) se dibuja desde la izquierda */
+}
