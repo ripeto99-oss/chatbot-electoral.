@@ -34,7 +34,7 @@ if GEMINI_API_KEY:
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    # CORRECCIÓN APLICADA: Parámetros nombrados para evitar el TypeError en Starlette/Render
+    # Parámetros nombrados para compatibilidad total con Starlette/Render
     return templates.TemplateResponse(request=request, name="index.html")
 
 @app.post("/api/chat")
@@ -43,8 +43,8 @@ async def chat_endpoint(req: ChatRequest):
         return {"response": "Error: La API Key de Gemini no está configurada en las variables de entorno de Render."}
     
     try:
-        # CORRECCIÓN APLICADA: Usamos gemini-pro que es compatible con la versión v1beta actual en Render
-        model = genai.GenerativeModel('gemini-pro')
+        # Identificador técnico exacto para los modelos actuales de tu cuenta
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
         # Construimos el Prompt del Sistema inyectando los resultados del usuario
         ranking_str = ", ".join([f"{r['name']} ({r['overallMatch']}%)" for r in req.context.ranking])
