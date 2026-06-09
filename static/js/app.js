@@ -147,13 +147,16 @@ function initializeChatbot() {
     if (!container) return;
     container.innerHTML = ''; // Limpiar
     
-    // Si no hay historial, agregar mensaje de bienvenida
+    // Si no hay historial, agregar mensaje de bienvenida de Segunda Vuelta
     if (window.appState.chatHistory.length === 0) {
         const ranking = calculateAfinityMetrics();
-        const top = ranking[0];
+        const finalistas = ranking.filter(c => c.id === 'cepeda' || c.id === 'espriella');
+        finalistas.sort((a,b) => b.overallMatch - a.overallMatch);
+        const ganadorSegundaVuelta = finalistas[0];
+
         window.appState.chatHistory.push({
             role: 'bot',
-            text: `¡Hola! Soy Gemini. Analicé tus resultados y noto que tienes una alta afinidad (${top.overallMatch}%) con ${top.name}. ¿Tienes alguna pregunta sobre tus resultados o alguna propuesta específica?`
+            text: `¡Hola! Soy Gemini. Analicé tus resultados de cara a la segunda vuelta. Tienes una mayor afinidad (${ganadorSegundaVuelta.overallMatch}%) con ${ganadorSegundaVuelta.name}. ¿Tienes alguna pregunta sobre el choque de propuestas entre él y su rival?`
         });
         triggerDebouncedAutosave();
     }
@@ -424,25 +427,73 @@ function calculateAfinityMetrics() {
 
 function buildDashboardHTML() {
     const ranking = calculateAfinityMetrics();
-    const top = ranking[0];
+    const topOriginal = ranking[0];
     
-    // Mantenemos los gráficos y visuales dentro del área imprimible, y sacamos el Chat fuera de ella
+    // 1. FILTRO DE SEGUNDA VUELTA
+    const finalistas = ranking.filter(c => c.id === 'cepeda' || c.id === 'espriella');
+    finalistas.sort((a,b) => b.overallMatch - a.overallMatch);
+    const ganadorSegundaVuelta = finalistas[0];
+
+    // 2. LÓGICA DE MIGRACIÓN DE VOTO
+    let alertaMigracion = '';
+    if (topOriginal.id !== 'cepeda' && topOriginal.id !== 'espriella') {
+        alertaMigracion = `
+            <div style="background-color: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1rem; margin-bottom: 1.5rem; border-radius: 0 0.5rem 0.5rem 0;">
+                <strong>🔄 Migración de Voto:</strong> Tu mayor afinidad global era con <strong>${topOriginal.name}</strong>. En este escenario de balotaje, tus respuestas te alinean matemáticamente con <strong>${ganadorSegundaVuelta.name}</strong> (${ganadorSegundaVuelta.overallMatch}%).
+            </div>`;
+    }
+
+    // 3. ANÁLISIS AMBIENTAL (FRACKING - PREGUNTA 2)
+    const votoFracking = window.appState.userAnswers[2]; // 1 es SÍ, 0 es NO
+    let alertaAmbiental = '';
+    if (votoFracking !== undefined) {
+        if (votoFracking === 0) {
+            alertaAmbiental = `<strong>🌎 Voto Ambiental:</strong> Te opones al Fracking. <strong>Iván Cepeda</strong> comparte tu visión proteccionista, mientras que <strong>Abelardo de la Espriella</strong> lo apoya abiertamente.`;
+        } else {
+            alertaAmbiental = `<strong>⚙️ Voto de Desarrollo:</strong> Apoyas el Fracking. <strong>Abelardo de la Espriella</strong> comparte tu visión extractivista para el desarrollo, mientras que <strong>Iván Cepeda</strong> busca prohibirlo.`;
+        }
+    }
+
+    // 4. CÁLCULO DE LA BARRA DE POLARIZACIÓN
+    const scoreCepeda = finalistas.find(c => c.id === 'cepeda').score;
+    const scoreEspriella = finalistas.find(c => c.id === 'espriella').score;
+    const totalScore = scoreCepeda + scoreEspriella || 1; // Evitar división por cero
+    const pctCepeda = Math.round((scoreCepeda / totalScore) * 100);
+    const pctEspriella = Math.round((scoreEspriella / totalScore) * 100);
+
     return `
         <div class="dashboard-grid">
-            
             <div id="printable-area">
-                <section class="result-hero">
-                    <div>
-                        <div class="result-affinity-score monospace">${top.overallMatch}%</div>
-                        <h2>${top.name}</h2>
-                        <p>${top.ideology}</p>
-                    </div>
-                    <div class="big-avatar" style="--cand-color:${top.color}">${top.avatarText}</div>
-                </section>
                 
-                <div class="viz-row">
+                ${alertaMigracion}
+
+                <section class="result-hero" style="border-color: ${ganadorSegundaVuelta.color}; border-width: 2px;">
+                    <div>
+                        <p style="text-transform: uppercase; font-size: 0.8rem; font-weight: 800; color: var(--muted); margin-bottom: 0.5rem;">Proyección Segunda Vuelta</p>
+                        <div class="result-affinity-score monospace">${ganadorSegundaVuelta.overallMatch}%</div>
+                        <h2>${ganadorSegundaVuelta.name}</h2>
+                        <p>${ganadorSegundaVuelta.ideology}</p>
+                    </div>
+                    <div class="big-avatar" style="--cand-color:${ganadorSegundaVuelta.color}">${ganadorSegundaVuelta.avatarText}</div>
+                </section>
+
+                <div class="viz-card" style="margin-top: 1.5rem;">
+                    <h3>Cara a Cara: Nivel de Polarización</h3>
+                    <div class="polarization-container">
+                        <div class="polarization-labels">
+                            <span style="color: #6366f1; font-weight: bold;">Cepeda (${pctCepeda}%)</span>
+                            <span style="color: #ef4444; font-weight: bold;">De la Espriella (${pctEspriella}%)</span>
+                        </div>
+                        <div class="polarization-bar-bg">
+                            <div class="polarization-bar-fill" style="width: ${pctCepeda}%; background-color: #6366f1;"></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.85rem; margin-top: 1rem; color: var(--text); line-height: 1.5;">${alertaAmbiental}</p>
+                </div>
+                
+                <div class="viz-row" style="margin-top: 1.5rem;">
                     <div class="viz-card">
-                        <h3>Afinidad Comparativa</h3>
+                        <h3>Afinidad Comparativa Global</h3>
                         <div class="radar-container"><canvas id="radarChart"></canvas></div>
                     </div>
                     <div class="viz-card" style="text-align:center;">
@@ -455,12 +506,11 @@ function buildDashboardHTML() {
             </div>
 
             <section class="chatbot-section">
-                <h3>🗣️ Asistente Electoral (Gemini AI)</h3>
-                <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Hazle preguntas específicas sobre tus resultados o pide que te resuma las propuestas de tus candidatos compatibles.</p>
+                <h3>🗣️ Asistente Electoral (Gemini AI) - Edición Segunda Vuelta</h3>
+                <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Hazle preguntas específicas sobre el choque de propuestas entre Cepeda y De la Espriella.</p>
                 
                 <div class="chat-container">
-                    <div class="chat-messages" id="chat-messages">
-                        </div>
+                    <div class="chat-messages" id="chat-messages"></div>
                     <div class="chat-input-area">
                         <input type="text" id="chat-input" class="chat-input" placeholder="Escribe tu pregunta aquí..." onkeypress="window.handleChatKeyPress(event)">
                         <button class="btn btn-primary chat-send-btn" onclick="window.sendChatMessage()">Enviar</button>
