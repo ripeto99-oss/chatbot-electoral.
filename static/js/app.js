@@ -67,7 +67,7 @@ window.appState = {
     userAnswers: {},
     userWeights: {},
     autosaveTimer: null,
-    chatHistory: [] // Nuevo estado para el chat
+    chatHistory: [] 
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -126,7 +126,7 @@ function renderScreen() {
         case 3: 
             viewport.innerHTML = buildDashboardHTML(); 
             renderDashboardChartsAndVisuals(); 
-            initializeChatbot(); // Inicializa el chat al cargar el dashboard
+            initializeChatbot(); 
             break;
     }
     window.scrollTo(0,0);
@@ -145,9 +145,8 @@ function toggleTheme() {
 function initializeChatbot() {
     const container = document.getElementById('chat-messages');
     if (!container) return;
-    container.innerHTML = ''; // Limpiar
+    container.innerHTML = ''; 
     
-    // Si no hay historial, agregar mensaje de bienvenida de Segunda Vuelta
     if (window.appState.chatHistory.length === 0) {
         const ranking = calculateAfinityMetrics();
         const finalistas = ranking.filter(c => c.id === 'cepeda' || c.id === 'espriella');
@@ -161,7 +160,6 @@ function initializeChatbot() {
         triggerDebouncedAutosave();
     }
     
-    // Renderizar historial
     window.appState.chatHistory.forEach(msg => appendMessageToDOM(msg.role, msg.text, false));
 }
 
@@ -174,11 +172,9 @@ function appendMessageToDOM(role, text, saveToHistory = true) {
     msgDiv.className = `chat-msg ${role}`;
     msgDiv.id = msgId;
     
-    // Función de limpieza básica para convertir saltos de línea a <br>
     msgDiv.innerHTML = text.replace(/\n/g, '<br>');
     container.appendChild(msgDiv);
     
-    // Auto-scroll
     container.scrollTop = container.scrollHeight;
     
     if (saveToHistory) {
@@ -193,7 +189,6 @@ function updateMessageInDOM(id, text) {
     if (msgDiv) {
         msgDiv.innerHTML = text.replace(/\n/g, '<br>');
         msgDiv.classList.remove('loading');
-        // Actualizar último registro en el historial
         if(window.appState.chatHistory.length > 0) {
             window.appState.chatHistory[window.appState.chatHistory.length - 1].text = text;
             triggerDebouncedAutosave();
@@ -212,14 +207,11 @@ window.sendChatMessage = async function() {
     const text = input.value.trim();
     if (!text) return;
     
-    // Deshabilitar input temporalmente
     input.value = '';
     input.disabled = true;
     
-    // Renderizar usuario
     appendMessageToDOM('user', text);
     
-    // Renderizar loader
     const loadingId = appendMessageToDOM('bot', '<span class="loading-dots">Analizando...</span>');
     document.getElementById(loadingId).classList.add('loading');
     
@@ -293,8 +285,7 @@ function buildQuizLayoutHTML() {
         <div class="quiz-layout">
             <aside class="quiz-sidebar">
                 <h3 class="sidebar-title">Ejes Electorales</h3>
-                <nav class="nav-list" id="sidebar-nav-list">
-                    </nav>
+                <nav class="nav-list" id="sidebar-nav-list"></nav>
             </aside>
             <section class="quiz-main" id="quiz-question-injection-zone"></section>
         </div>
@@ -454,12 +445,13 @@ function buildDashboardHTML() {
         }
     }
 
-    // 4. CÁLCULO DE LA BARRA DE POLARIZACIÓN
-    const scoreCepeda = finalistas.find(c => c.id === 'cepeda').score;
-    const scoreEspriella = finalistas.find(c => c.id === 'espriella').score;
-    const totalScore = scoreCepeda + scoreEspriella || 1; // Evitar división por cero
-    const pctCepeda = Math.round((scoreCepeda / totalScore) * 100);
-    const pctEspriella = Math.round((scoreEspriella / totalScore) * 100);
+    // 4. CÁLCULO DE LA BARRA DE POLARIZACIÓN (CORREGIDO)
+    const matchCepeda = finalistas.find(c => c.id === 'cepeda').overallMatch;
+    const matchEspriella = finalistas.find(c => c.id === 'espriella').overallMatch;
+    const totalMatch = matchCepeda + matchEspriella || 1; // Evitar división por cero
+    
+    const pctCepeda = Math.round((matchCepeda / totalMatch) * 100);
+    const pctEspriella = Math.round((matchEspriella / totalMatch) * 100);
 
     return `
         <div class="dashboard-grid">
@@ -549,7 +541,7 @@ function renderDashboardChartsAndVisuals() {
     // 2. Renderizar Scatter
     const scatter = document.getElementById('scatter-box');
     if(scatter) {
-        scatter.innerHTML = '<div class="scatter-axis-x"></div><div class="scatter-axis-y"></div>'; // reset
+        scatter.innerHTML = '<div class="scatter-axis-x"></div><div class="scatter-axis-y"></div>'; 
         ranking.forEach(c => {
             const left = ((c.x_axis + 1) / 2) * 100;
             const bot = ((c.y_axis + 1) / 2) * 100;
