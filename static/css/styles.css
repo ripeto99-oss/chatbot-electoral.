@@ -1,7 +1,465 @@
 /* ==========================================
    ESTILOS NUEVOS: CHATBOT DE GEMINI
    ========================================== */
+/* ==========================================
+   ARQUITECTURA VISUAL: VOTO INFORMADO 2.0
+   ========================================== */
 
+:root {
+    --bg-app: #0f172a;
+    --bg-card: #1e293b;
+    --bg-inner: #0f172a;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: #334155;
+    --primary: #6366f1;
+    --success: #10b981;
+    --danger: #ef4444;
+    --radius-xl: 1rem;
+    --radius-lg: 0.75rem;
+    --radius-md: 0.5rem;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.light {
+    --bg-app: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-inner: #f1f5f9;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #4f46e5;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-app);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+    min-height: 100vh;
+}
+
+.monospace {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* --- ENCABEZADO --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+}
+
+.brand-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.brand-logo {
+    background-color: var(--primary);
+    color: white;
+    font-weight: 800;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    font-size: 1.25rem;
+}
+
+.brand-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+.theme-toggle {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* --- BOTONES Y COMPONENTES --- */
+.btn {
+    font-family: inherit;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-inner);
+}
+
+.session-banner {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* --- MAQUETACIÓN DEL QUIZ --- */
+.quiz-layout {
+    display: grid;
+    grid-template-columns: 280px 1px flex;
+    display: flex;
+    gap: 2rem;
+}
+
+.quiz-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.sidebar-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 0.85rem;
+    width: 100%;
+}
+
+.nav-item.active {
+    background-color: var(--bg-card);
+    color: var(--text);
+    font-weight: 600;
+}
+
+.nav-item.answered .nav-status {
+    background-color: var(--success);
+}
+
+.nav-status {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--border);
+}
+
+.quiz-main {
+    flex: 1;
+}
+
+/* --- TARJETA DE PREGUNTA --- */
+.progress-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.progress-bar-container {
+    flex: 1;
+    height: 0.5rem;
+    background-color: var(--border);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--primary);
+    transition: width 0.3s var(--ease);
+}
+
+.question-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    border-radius: var(--radius-xl);
+}
+
+.weight-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.weight-btn {
+    background: var(--bg-inner);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+}
+
+.weight-btn.active {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: transparent;
+    font-weight: 600;
+}
+
+.vote-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 2.5rem 0;
+}
+
+.btn-vote {
+    font-size: 1.25rem;
+    font-weight: 800;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-inner);
+    border: 2px solid var(--border);
+    color: var(--text);
+}
+
+.btn-vote-no.active {
+    border-color: var(--danger);
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+.btn-vote-si.active {
+    border-color: var(--success);
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.quiz-navigation {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+}
+
+/* --- TABLAS DE REVISIÓN --- */
+.table-responsive {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.review-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+    background-color: var(--bg-card);
+}
+
+.review-table th, .review-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.review-table th {
+    background-color: var(--bg-inner);
+    color: var(--muted);
+    font-weight: 600;
+}
+
+/* --- DASHBOARD --- */
+.dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.result-hero {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    border-radius: var(--radius-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.result-affinity-score {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.big-avatar {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background-color: var(--cand-color, var(--primary));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.75rem;
+}
+
+.viz-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .viz-row, .quiz-layout { flex-direction: column; grid-template-columns: 1fr; }
+}
+
+.viz-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+}
+
+.viz-card h3 {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    color: var(--muted);
+}
+
+.radar-container {
+    height: 300px;
+    position: relative;
+}
+
+/* --- GRÁFICO DISPERSIÓN (ESPECTRO POLÍTICO) --- */
+.scatter-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.scatter-plot-box {
+    width: 260px;
+    height: 260px;
+    border: 2px solid var(--border);
+    position: relative;
+    background-color: var(--bg-inner);
+}
+
+.scatter-axis-x {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--border);
+}
+
+.scatter-axis-y {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background-color: var(--border);
+}
+
+.scatter-dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transform: translate(-50%, 50%);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    transition: all 0.3s var(--ease);
+}
+
+.landing-hero {
+    text-align: center;
+    padding: 5rem 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.landing-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+}
+
+.landing-subtitle {
+    color: var(--muted);
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+}
 .chatbot-section {
     background-color: var(--bg-card);
     border: 1px solid var(--border);
