@@ -510,8 +510,7 @@ function buildDashboardHTML() {
                 </div>
             </section>
 
-            <section class="final-actions-row" style="display:flex; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-                <button class="btn btn-secondary" onclick="descargarReportePDF()">📥 Exportar PDF</button>
+            <section class="final-actions-row" style="display:flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
                 <button class="btn btn-primary" onclick="clearSessionData()">🔄 Reiniciar Test</button>
             </section>
         </div>
@@ -521,7 +520,6 @@ function buildDashboardHTML() {
 function renderDashboardChartsAndVisuals() {
     const ranking = calculateAfinityMetrics();
     
-    // 1. Renderizar Radar (Desactivamos la animación inicial para congelar el Canvas listo para el PDF)
     const ctx = document.getElementById('radarChart');
     if (ctx) {
         new Chart(ctx, {
@@ -537,13 +535,11 @@ function renderDashboardChartsAndVisuals() {
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false, 
-                animation: false, // <-- IMPORTANTE: Desactivar animación evita el PDF en blanco
                 scales: { r: { min: 0, max: 100 } } 
             }
         });
     }
 
-    // 2. Renderizar Scatter
     const scatter = document.getElementById('scatter-box');
     if(scatter) {
         scatter.innerHTML = '<div class="scatter-axis-x"></div><div class="scatter-axis-y"></div>'; 
@@ -554,27 +550,3 @@ function renderDashboardChartsAndVisuals() {
         });
     }
 }
-
-// ==========================================
-// 6. EXPORTAR PDF (SOLUCIÓN HOJA EN BLANCO DEFINITIVA)
-// ==========================================
-window.descargarReportePDF = function() {
-    const elemento = document.getElementById('printable-area');
-    
-    // Modos de renderizado nativos para forzar que los canvas e imágenes locales se impriman
-    const opciones = {
-        margin:       0.3,
-        filename:     'Reporte_Afinidad_Electoral_2026.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2,           
-            useCORS: true,      
-            allowTaint: true,   // <-- Obliga a pintar recursos del disco local (C:/Users/...)
-            logging: false,     
-            delay: 300          
-        },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opciones).from(elemento).save();
-};
