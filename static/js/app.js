@@ -521,7 +521,7 @@ function buildDashboardHTML() {
 function renderDashboardChartsAndVisuals() {
     const ranking = calculateAfinityMetrics();
     
-    // 1. Renderizar Radar
+    // 1. Renderizar Radar (Desactivamos la animación inicial para congelar el Canvas listo para el PDF)
     const ctx = document.getElementById('radarChart');
     if (ctx) {
         new Chart(ctx, {
@@ -534,7 +534,12 @@ function renderDashboardChartsAndVisuals() {
                     borderColor: c.color, backgroundColor: `${c.color}20`
                 }))
             },
-            options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 100 } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                animation: false, // <-- IMPORTANTE: Desactivar animación evita el PDF en blanco
+                scales: { r: { min: 0, max: 100 } } 
+            }
         });
     }
 
@@ -551,20 +556,22 @@ function renderDashboardChartsAndVisuals() {
 }
 
 // ==========================================
-// 6. EXPORTAR PDF (SOLUCIÓN HOJA EN BLANCO)
+// 6. EXPORTAR PDF (SOLUCIÓN HOJA EN BLANCO DEFINITIVA)
 // ==========================================
 window.descargarReportePDF = function() {
     const elemento = document.getElementById('printable-area');
     
+    // Modos de renderizado nativos para forzar que los canvas e imágenes locales se impriman
     const opciones = {
-        margin:       0.5,
+        margin:       0.3,
         filename:     'Reporte_Afinidad_Electoral_2026.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { 
             scale: 2,           
             useCORS: true,      
+            allowTaint: true,   // <-- Obliga a pintar recursos del disco local (C:/Users/...)
             logging: false,     
-            delay: 500          
+            delay: 300          
         },
         jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
