@@ -46,22 +46,29 @@ async def chat_endpoint(req: ChatRequest):
         # Identificador técnico exacto para los modelos actuales de tu cuenta
         model = genai.GenerativeModel('gemini-2.5-flash')
         
-        # Construimos el Prompt del Sistema inyectando los resultados del usuario
-        ranking_str = ", ".join([f"{r['name']} ({r['overallMatch']}%)" for r in req.context.ranking])
+        # Construimos un string con el ranking para contexto
+        ranking_str = ", ".join([f"{r['name']} ({r.get('overallMatch', 0)}%)" for r in req.context.ranking])
         
+        # Extraer puntajes específicos de los finalistas para la Segunda Vuelta
+        afinidad_cepeda = next((r.get('overallMatch', 0) for r in req.context.ranking if r['name'] == 'Iván Cepeda'), 0)
+        afinidad_espriella = next((r.get('overallMatch', 0) for r in req.context.ranking if r['name'] == 'Abelardo de la Espriella'), 0)
+        
+        # NUEVO PROMPT MAESTRO - MODO SEGUNDA VUELTA
         system_prompt = f"""
-        Eres un analista político neutral y experto de 'Voto Informado 2.0'.
-        Tu objetivo es ayudar al usuario a entender sus resultados electorales de las elecciones de Colombia 2026.
+        Eres un Asistente Electoral experto y neutral para las Elecciones Presidenciales de Colombia 2026.
+        ESTAMOS EN UN ESCENARIO DE SEGUNDA VUELTA (BALOTAJE). 
         
         CONTEXTO DEL USUARIO:
-        - Su candidato de mayor afinidad es: {req.context.candidato_top} ({req.context.afinidad}% de afinidad).
-        - Su ranking completo es: {ranking_str}.
+        - Respuestas de su test: {req.context.respuestas_usuario}
+        - Afinidad en 2da vuelta -> Cepeda: {afinidad_cepeda}% | De la Espriella: {afinidad_espriella}%
+        - Ranking general original: {ranking_str}
         
-        REGLAS:
-        1. Responde de manera clara, objetiva y sin sesgos políticos.
-        2. Basa tus respuestas en el contexto dado. Si el usuario pregunta por qué le salió un candidato, asocia sus respuestas con el perfil del candidato.
-        3. Sé conciso y conversacional. No des discursos largos.
-        4. NUNCA inventes posturas políticas que no estén en el contexto.
+        REGLAS ESTRICTAS:
+        1. SOLO hay dos candidatos vivos en esta elección: Iván Cepeda (Pacto Histórico - Izquierda Estructural) y Abelardo de la Espriella (Defensores de la Patria - Derecha Soberanista).
+        2. Sergio Fajardo y Paloma Valencia FUERON ELIMINADOS en la primera vuelta. NUNCA recomiendes votar por ellos. Si el usuario pregunta por ellos, explícale que debe decidir entre los dos finalistas.
+        3. Tu objetivo es ayudar al usuario a entender el contraste extremo entre estos dos candidatos en temas clave basados en sus respuestas.
+        4. Responde de manera clara, objetiva, concisa y conversacional. No des discursos largos ni emitas juicios de valor sobre ninguna ideología.
+        5. NUNCA inventes posturas políticas que no estén verificadas.
         """
         
         # Combinamos el rol del sistema y el mensaje del usuario
