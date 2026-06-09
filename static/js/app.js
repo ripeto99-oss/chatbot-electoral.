@@ -66,7 +66,8 @@ window.appState = {
     currentQuestionIdx: 0,
     userAnswers: {},
     userWeights: {},
-    autosaveTimer: null
+    autosaveTimer: null,
+    chatHistory: [] // Nuevo estado para el chat
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -83,6 +84,7 @@ function loadStateFromStorage() {
             window.appState.userWeights = parsed.userWeights || {};
             window.appState.currentScreen = parsed.currentScreen || 0;
             window.appState.currentQuestionIdx = parsed.currentQuestionIdx || 0;
+            window.appState.chatHistory = parsed.chatHistory || [];
         }
     } catch (e) {
         console.error("Error persistencia local:", e);
@@ -101,6 +103,7 @@ function clearSessionData() {
     window.appState.userWeights = {};
     window.appState.currentScreen = 0;
     window.appState.currentQuestionIdx = 0;
+    window.appState.chatHistory = [];
     localStorage.removeItem('voto_informado_session');
     renderScreen();
 }
@@ -120,7 +123,11 @@ function renderScreen() {
         case 0: viewport.innerHTML = buildLandingHTML(); break;
         case 1: viewport.innerHTML = buildQuizLayoutHTML(); updateQuestionCardDOM(); break;
         case 2: viewport.innerHTML = buildReviewHTML(); break;
-        case 3: viewport.innerHTML = buildDashboardHTML(); renderDashboardChartsAndVisuals(); break;
+        case 3: 
+            viewport.innerHTML = buildDashboardHTML(); 
+            renderDashboardChartsAndVisuals(); 
+            initializeChatbot(); // Inicializa el chat al cargar el dashboard
+            break;
     }
     window.scrollTo(0,0);
 }
@@ -133,20 +140,95 @@ function toggleTheme() {
 }
 
 // ==========================================
-// 4. API CLIENT (GEMINI INTEGRATION)
+// 4. CHATBOT ENGINE (API CLIENT)
 // ==========================================
-/**
- * Conecta el frontend con la API REST real de FastAPI en app.py
- * Puedes usar esta función en el futuro si decides reconstruir la interfaz del chatbot.
- */
-async function askGemini(messageText) {
+function initializeChatbot() {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+    container.innerHTML = ''; // Limpiar
+    
+    // Si no hay historial, agregar mensaje de bienvenida
+    if (window.appState.chatHistory.length === 0) {
+        const ranking = calculateAfinityMetrics();
+        const top = ranking[0];
+        window.appState.chatHistory.push({
+            role: 'bot',
+            text: `¡Hola! Soy Gemini. Analicé tus resultados y noto que tienes una alta afinidad (${top.overallMatch}%) con ${top.name}. ¿Tienes alguna pregunta sobre tus resultados o alguna propuesta específica?`
+        });
+        triggerDebouncedAutosave();
+    }
+    
+    // Renderizar historial
+    window.appState.chatHistory.forEach(msg => appendMessageToDOM(msg.role, msg.text, false));
+}
+
+function appendMessageToDOM(role, text, saveToHistory = true) {
+    const container = document.getElementById('chat-messages');
+    if (!container) return null;
+    
+    const msgId = 'msg-' + Date.now();
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chat-msg ${role}`;
+    msgDiv.id = msgId;
+    
+    // Función de limpieza básica para convertir saltos de línea a <br>
+    msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+    container.appendChild(msgDiv);
+    
+    // Auto-scroll
+    container.scrollTop = container.scrollHeight;
+    
+    if (saveToHistory) {
+        window.appState.chatHistory.push({ role, text });
+        triggerDebouncedAutosave();
+    }
+    return msgId;
+}
+
+function updateMessageInDOM(id, text) {
+    const msgDiv = document.getElementById(id);
+    if (msgDiv) {
+        msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+        msgDiv.classList.remove('loading');
+        // Actualizar último registro en el historial
+        if(window.appState.chatHistory.length > 0) {
+            window.appState.chatHistory[window.appState.chatHistory.length - 1].text = text;
+            triggerDebouncedAutosave();
+        }
+        const container = document.getElementById('chat-messages');
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
+window.handleChatKeyPress = function(e) {
+    if (e.key === 'Enter') window.sendChatMessage();
+};
+
+window.sendChatMessage = async function() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    // Deshabilitar input temporalmente
+    input.value = '';
+    input.disabled = true;
+    
+    // Renderizar usuario
+    appendMessageToDOM('user', text);
+    
+    // Renderizar loader
+    const loadingId = appendMessageToDOM('bot', '<span class="loading-dots">Analizando...</span>');
+    document.getElementById(loadingId).classList.add('loading');
+    
     const ranking = calculateAfinityMetrics();
     const payload = {
-        message: messageText,
+        message: text,
         context: {
             resultado: "Evaluación completada",
-            candidato: ranking[0]?.candidateName || "Ninguno",
-            afinidad: ranking[0]?.overallMatch || 0
+            candidato_top: ranking[0]?.name || "Ninguno",
+            afinidad: ranking[0]?.overallMatch || 0,
+            ranking: ranking.map(r => ({ name: r.name, overallMatch: r.overallMatch })),
+            respuestas_usuario: window.appState.userAnswers
         }
     };
 
@@ -157,12 +239,15 @@ async function askGemini(messageText) {
             body: JSON.stringify(payload)
         });
         const data = await response.json();
-        return data.response;
+        updateMessageInDOM(loadingId, data.response);
     } catch (error) {
-        console.error("Error al comunicarse con la API de Gemini:", error);
-        return "Hubo un error al procesar tu solicitud.";
+        console.error("Error al comunicarse con Gemini:", error);
+        updateMessageInDOM(loadingId, "⚠️ Hubo un error de conexión al consultar a Gemini. Intenta de nuevo.");
+    } finally {
+        input.disabled = false;
+        input.focus();
     }
-}
+};
 
 // ==========================================
 // 5. VIEW BUILDERS (HTML GENERATORS)
@@ -195,6 +280,7 @@ function startFreshQuiz() {
     window.appState.userAnswers = {};
     window.appState.userWeights = {};
     window.appState.currentQuestionIdx = 0;
+    window.appState.chatHistory = [];
     BANK_QUESTIONS.forEach(q => { window.appState.userWeights[q.id] = 2; });
     navigateTo(1);
 }
@@ -237,7 +323,6 @@ function updateQuestionCardDOM() {
     const sidebar = document.getElementById('sidebar-nav-list');
     if (!target) return;
 
-    // Actualizar sidebar
     if(sidebar) {
         sidebar.innerHTML = BANK_QUESTIONS.map((q, idx) => `
             <button class="nav-item ${idx === window.appState.currentQuestionIdx ? 'active' : ''} ${window.appState.userAnswers[q.id] !== undefined ? 'answered' : ''}" onclick="window.appState.currentQuestionIdx=${idx}; updateQuestionCardDOM();">
@@ -341,31 +426,49 @@ function buildDashboardHTML() {
     const ranking = calculateAfinityMetrics();
     const top = ranking[0];
     
+    // Mantenemos los gráficos y visuales dentro del área imprimible, y sacamos el Chat fuera de ella
     return `
-        <div class="dashboard-grid" id="printable-area">
-            <section class="result-hero">
-                <div>
-                    <div class="result-affinity-score monospace">${top.overallMatch}%</div>
-                    <h2>${top.name}</h2>
-                    <p>${top.ideology}</p>
-                </div>
-                <div class="big-avatar" style="--cand-color:${top.color}">${top.avatarText}</div>
-            </section>
+        <div class="dashboard-grid">
             
-            <div class="viz-row">
-                <div class="viz-card">
-                    <h3>Afinidad Comparativa</h3>
-                    <div class="radar-container"><canvas id="radarChart"></canvas></div>
-                </div>
-                <div class="viz-card" style="text-align:center;">
-                    <h3>Espectro Político</h3>
-                    <div class="scatter-container"><div class="scatter-plot-box" id="scatter-box">
-                        <div class="scatter-axis-x"></div><div class="scatter-axis-y"></div>
-                    </div></div>
+            <div id="printable-area">
+                <section class="result-hero">
+                    <div>
+                        <div class="result-affinity-score monospace">${top.overallMatch}%</div>
+                        <h2>${top.name}</h2>
+                        <p>${top.ideology}</p>
+                    </div>
+                    <div class="big-avatar" style="--cand-color:${top.color}">${top.avatarText}</div>
+                </section>
+                
+                <div class="viz-row">
+                    <div class="viz-card">
+                        <h3>Afinidad Comparativa</h3>
+                        <div class="radar-container"><canvas id="radarChart"></canvas></div>
+                    </div>
+                    <div class="viz-card" style="text-align:center;">
+                        <h3>Espectro Político</h3>
+                        <div class="scatter-container"><div class="scatter-plot-box" id="scatter-box">
+                            <div class="scatter-axis-x"></div><div class="scatter-axis-y"></div>
+                        </div></div>
+                    </div>
                 </div>
             </div>
 
-            <section class="final-actions-row">
+            <section class="chatbot-section">
+                <h3>🗣️ Asistente Electoral (Gemini AI)</h3>
+                <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Hazle preguntas específicas sobre tus resultados o pide que te resuma las propuestas de tus candidatos compatibles.</p>
+                
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" class="chat-input" placeholder="Escribe tu pregunta aquí..." onkeypress="window.handleChatKeyPress(event)">
+                        <button class="btn btn-primary chat-send-btn" onclick="window.sendChatMessage()">Enviar</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="final-actions-row" style="display:flex; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
                 <button class="btn btn-secondary" onclick="html2pdf().from(document.getElementById('printable-area')).save()">📥 Exportar PDF</button>
                 <button class="btn btn-primary" onclick="clearSessionData()">🔄 Reiniciar Test</button>
             </section>
@@ -396,6 +499,7 @@ function renderDashboardChartsAndVisuals() {
     // 2. Renderizar Scatter
     const scatter = document.getElementById('scatter-box');
     if(scatter) {
+        scatter.innerHTML = '<div class="scatter-axis-x"></div><div class="scatter-axis-y"></div>'; // reset
         ranking.forEach(c => {
             const left = ((c.x_axis + 1) / 2) * 100;
             const bot = ((c.y_axis + 1) / 2) * 100;
