@@ -49,7 +49,7 @@ const BANK_QUESTIONS = [
     { id: 15, dimension: 3, topic: 'Glifosato', text: '¿Se debe reactivar la aspersión aérea forzosa de cultivos ilícitos con glifosato?' },
     { id: 16, dimension: 3, topic: 'Policía', text: '¿Debería trasladarse la Policía Nacional desde el Ministerio de Defensa a otro Ministerio?' },
     { id: 17, dimension: 3, topic: 'JEP', text: '¿Debe preservarse la Jurisdicción Especial para la Paz (JEP) sin modificaciones estructurales?' },
-    { id: 18, dimension: 3, topic: 'Armas', text: '¿Es conveniente flexibilizar permisos para el porte legítimo de armas para defensa personal?' },
+    { id: 18, dimension: 3, topic: 'Armas', text: '¿Es conveniente flexibilizar permisos para el porte legítimo de armas para defense personal?' },
     { id: 19, dimension: 4, topic: 'Autos', text: '¿Se debe prohibir la venta de vehículos de combustión fósil nuevos antes de 2035?' },
     { id: 20, dimension: 4, topic: 'Minería', text: '¿Debe suspenderse la concesión de nuevos contratos de exploración minera a gran escala?' },
     { id: 21, dimension: 4, topic: 'Voto', text: '¿Debería instaurarse el voto obligatorio para contrarrestar la abstención electoral?' },
@@ -511,7 +511,7 @@ function buildDashboardHTML() {
             </section>
 
             <section class="final-actions-row" style="display:flex; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-                <button class="btn btn-secondary" onclick="html2pdf().from(document.getElementById('printable-area')).save()">📥 Exportar PDF</button>
+                <button class="btn btn-secondary" onclick="descargarReportePDF()">📥 Exportar PDF</button>
                 <button class="btn btn-primary" onclick="clearSessionData()">🔄 Reiniciar Test</button>
             </section>
         </div>
@@ -549,3 +549,25 @@ function renderDashboardChartsAndVisuals() {
         });
     }
 }
+
+// ==========================================
+// 6. EXPORTAR PDF (SOLUCIÓN HOJA EN BLANCO)
+// ==========================================
+window.descargarReportePDF = function() {
+    const elemento = document.getElementById('printable-area');
+    
+    const opciones = {
+        margin:       0.5,
+        filename:     'Reporte_Afinidad_Electoral_2026.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2,           
+            useCORS: true,      
+            logging: false,     
+            delay: 500          
+        },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opciones).from(elemento).save();
+};
