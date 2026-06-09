@@ -10,22 +10,22 @@ const BRAND_DIMENSIONS = {
 
 const CANDIDATES = {
     cepeda: {
-        id: 'cepeda', name: 'Iván Cepeda', party: 'Pacto Histórico', color: '#6366f1', avatarText: 'IC', ideology: 'Izquierda Estructural',
+        id: 'cepeda', name: 'Iván Cepeda', party: 'Pacto Histórico', color: '#6366f1', image: '/static/cepeda.jpg', avatarText: 'IC', ideology: 'Izquierda Estructural',
         x_axis: -0.75, y_axis: 0.7, timeline: 'Senador. Co-arquitecto de procesos de paz.',
         answers: { 1:1, 2:0, 3:0, 4:1, 5:0, 6:0, 7:1, 8:1, 9:1, 10:1, 11:1, 12:1, 13:1, 14:0, 15:0, 16:0, 17:1, 18:0, 19:1, 20:0, 21:1, 22:1, 23:1, 24:0 }
     },
     espriella: {
-        id: 'espriella', name: 'Abelardo de la Espriella', party: 'Defensores de la Patria', color: '#ef4444', avatarText: 'AE', ideology: 'Derecha Soberanista',
+        id: 'espriella', name: 'Abelardo de la Espriella', party: 'Defensores de la Patria', color: '#ef4444', image: '/static/abelardo.jpg', avatarText: 'AE', ideology: 'Derecha Soberanista',
         x_axis: 0.85, y_axis: -0.8, timeline: 'Promotor de agenda punitiva y libre mercado.',
         answers: { 1:0, 2:1, 3:1, 4:0, 5:1, 6:1, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0, 13:0, 14:1, 15:1, 16:1, 17:0, 18:1, 19:0, 20:1, 21:0, 22:0, 23:0, 24:1 }
     },
     valencia: {
-        id: 'valencia', name: 'Paloma Valencia', party: 'Centro Democrático', color: '#3b82f6', avatarText: 'PV', ideology: 'Derecha Institucional',
+        id: 'valencia', name: 'Paloma Valencia', party: 'Centro Democrático', color: '#3b82f6', image: '/static/paloma.jpg', avatarText: 'PV', ideology: 'Derecha Institucional',
         x_axis: 0.6, y_axis: -0.4, timeline: 'Representante histórica de seguridad democrática.',
         answers: { 1:0, 2:1, 3:1, 4:0, 5:1, 6:1, 7:0, 8:0, 9:1, 10:0, 11:1, 12:0, 13:0, 14:1, 15:1, 16:1, 17:0, 18:0, 19:0, 20:1, 21:0, 22:0, 23:0, 24:0 }
     },
     fajardo: {
-        id: 'fajardo', name: 'Sergio Fajardo', party: 'Dignidad y Compromiso', color: '#f59e0b', avatarText: 'SF', ideology: 'Centro Pragmático',
+        id: 'fajardo', name: 'Sergio Fajardo', party: 'Dignidad y Compromiso', color: '#f59e0b', image: '/static/fajardo.jpg', avatarText: 'SF', ideology: 'Centro Pragmático',
         x_axis: -0.1, y_axis: 0.3, timeline: 'Académico enfocado en la educación.',
         answers: { 1:0, 2:0, 3:1, 4:0, 5:0, 6:1, 7:1, 8:1, 9:1, 10:1, 11:1, 12:0, 13:1, 14:0, 15:0, 16:0, 17:1, 18:0, 19:1, 20:0, 21:0, 22:1, 23:1, 24:0 }
     }
@@ -459,14 +459,14 @@ function buildDashboardHTML() {
                 
                 ${alertaMigracion}
 
-                <section class="result-hero" style="border-color: ${ganadorSegundaVuelta.color}; border-width: 2px;">
+                <section class="result-hero" style="border-color: ${ganadorSegundaVuelta.color}; border-width: 2px; display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <p style="text-transform: uppercase; font-size: 0.8rem; font-weight: 800; color: var(--muted); margin-bottom: 0.5rem;">Proyección Segunda Vuelta</p>
                         <div class="result-affinity-score monospace">${ganadorSegundaVuelta.overallMatch}%</div>
                         <h2>${ganadorSegundaVuelta.name}</h2>
                         <p>${ganadorSegundaVuelta.ideology}</p>
                     </div>
-                    <div class="big-avatar" style="--cand-color:${ganadorSegundaVuelta.color}">${ganadorSegundaVuelta.avatarText}</div>
+                    <img src="${ganadorSegundaVuelta.image}" alt="Foto de ${ganadorSegundaVuelta.name}" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid ${ganadorSegundaVuelta.color}; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 </section>
 
                 <div class="viz-card" style="margin-top: 1.5rem;">
