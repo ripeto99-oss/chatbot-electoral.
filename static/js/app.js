@@ -435,7 +435,7 @@ function buildDashboardHTML() {
     }
 
     // 3. ANÁLISIS AMBIENTAL (FRACKING - PREGUNTA 2)
-    const votoFracking = window.appState.userAnswers[2]; 
+    const votoFracking = window.appState.userAnswers[2]; // 1 es SÍ, 0 es NO
     let alertaAmbiental = '';
     if (votoFracking !== undefined) {
         if (votoFracking === 0) {
@@ -445,17 +445,17 @@ function buildDashboardHTML() {
         }
     }
 
-    // 4. CÁLCULO DE LA BARRA DE POLARIZACIÓN
+    // 4. CÁLCULO DE LA BARRA DE POLARIZACIÓN (CORREGIDO)
     const matchCepeda = finalistas.find(c => c.id === 'cepeda').overallMatch;
     const matchEspriella = finalistas.find(c => c.id === 'espriella').overallMatch;
-    const totalMatch = matchCepeda + matchEspriella || 1; 
+    const totalMatch = matchCepeda + matchEspriella || 1; // Evitar división por cero
     
     const pctCepeda = Math.round((matchCepeda / totalMatch) * 100);
     const pctEspriella = Math.round((matchEspriella / totalMatch) * 100);
 
     return `
         <div class="dashboard-grid">
-            <div id="printable-area" style="background: var(--bg); padding: 1.5rem; border-radius: 0.75rem;">
+            <div id="printable-area">
                 
                 ${alertaMigracion}
 
@@ -510,8 +510,7 @@ function buildDashboardHTML() {
                 </div>
             </section>
 
-            <section class="final-actions-row" style="display:flex; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-                <button class="btn btn-secondary" onclick="descargarReportePDFDirecto()">📥 Exportar PDF</button>
+            <section class="final-actions-row" style="display:flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
                 <button class="btn btn-primary" onclick="clearSessionData()">🔄 Reiniciar Test</button>
             </section>
         </div>
@@ -536,7 +535,6 @@ function renderDashboardChartsAndVisuals() {
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false, 
-                animation: { duration: 0 }, // <-- Desactivado por completo para congelar el render inmediato
                 scales: { r: { min: 0, max: 100 } } 
             }
         });
@@ -552,33 +550,3 @@ function renderDashboardChartsAndVisuals() {
         });
     }
 }
-
-// ==========================================
-// 6. EXPORTAR PDF (PROCESO DIRECTO INMUNE A CONFIGURACIONES LOCALES)
-// ==========================================
-window.descargarReportePDFDirecto = function() {
-    const elemento = document.getElementById('printable-area');
-    
-    // Forzamos un renderizado limpio inline para evitar hojas blancas de herencia CSS
-    elemento.style.color = "#000000";
-
-    const opciones = {
-        margin:       [0.4, 0.4, 0.4, 0.4],
-        filename:     'Reporte_Electoral_Colombia_2026.pdf',
-        image:        { type: 'jpeg', quality: 1.0 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true, 
-            allowTaint: true, // Crucial para saltar seguridad de archivos locales file://
-            letterRendering: true,
-            logging: true
-        },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-
-    // Usamos el hilo de ejecución por pasos de html2pdf para asegurar la captura del Canvas
-    html2pdf().set(opciones).from(elemento).toContainer().toCanvas().toImg().toPdf().save().then(() => {
-        // Restauramos los estilos visuales normales del dashboard después de descargar
-        elemento.style.color = "";
-    });
-};
