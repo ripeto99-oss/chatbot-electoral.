@@ -6,7 +6,6 @@ from pydantic import BaseModel
 import google.generativeai as genai
 import os
 import uvicorn
-import traceback
 
 app = FastAPI()
 
@@ -44,8 +43,8 @@ async def chat_endpoint(req: ChatRequest):
         return {"response": "Error: La API Key de Gemini no está configurada en las variables de entorno de Render."}
     
     try:
-        # Usamos flash por velocidad y rendimiento en chatbots web
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # CORRECCIÓN APLICADA: Usamos gemini-pro que es compatible con la versión v1beta actual en Render
+        model = genai.GenerativeModel('gemini-pro')
         
         # Construimos el Prompt del Sistema inyectando los resultados del usuario
         ranking_str = ", ".join([f"{r['name']} ({r['overallMatch']}%)" for r in req.context.ranking])
@@ -72,17 +71,8 @@ async def chat_endpoint(req: ChatRequest):
         return {"response": response.text}
         
     except Exception as e:
-        # ==========================================
-        # BLOQUE DE DIAGNÓSTICO ESTRICTO
-        # ==========================================
-        error_log = f"Tipo: {type(e).__name__} | Detalle: {repr(e)}"
-        
-        # Imprime la traza completa en la consola de Render
-        print(f"Error completo Gemini:\n{error_log}")
-        print(traceback.format_exc())
-        
-        # Devuelve el error crudo al frontend para que lo leas en pantalla
-        return {"response": f"🚨 DIAGNÓSTICO DE ERROR:\n{error_log}"}
+        print(f"Error en Gemini API: {e}")
+        return {"response": "Lo siento, tuve un problema interno al analizar tus datos. Por favor, intenta de nuevo."}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
